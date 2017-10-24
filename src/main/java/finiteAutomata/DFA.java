@@ -1,5 +1,7 @@
 package finiteAutomata;
 
+import utilties.FA_StateComparator;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class DFA extends NFA {
     /**
      * 计算当前节点的ε闭包 ε-closure
      */
-    private List<FA_State> closure(FA_State nowState) {
+    public List<FA_State> closure(FA_State nowState) {
         List<FA_State> result = new LinkedList<FA_State>();
         result.add(nowState);
 
@@ -43,6 +45,7 @@ public class DFA extends NFA {
             }
         }
 
+        result.sort(new FA_StateComparator());
         return result;
     }
 }
