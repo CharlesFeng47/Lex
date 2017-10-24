@@ -24,6 +24,11 @@ public class NFA {
      */
     private List<FA_Edge> terminatedStates;
 
+    /**
+     * 字母表
+     */
+    private List<Character> alphabet;
+
     public FA_State getStart() {
         return start;
     }
@@ -42,6 +47,14 @@ public class NFA {
 
     public List<FA_Edge> getTerminatedStates() {
         return terminatedStates;
+    }
+
+    public List<Character> getAlphabet() {
+        return alphabet;
+    }
+
+    public void setAlphabet(List<Character> alphabet) {
+        this.alphabet = alphabet;
     }
 
     public void setTerminatedStates(List<FA_Edge> terminatedStates) {

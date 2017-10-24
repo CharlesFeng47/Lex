@@ -24,7 +24,7 @@ public class FA_State {
 
     public FA_State(int stateID) {
         this.stateID = stateID;
-        this.follows = new LinkedList<FA_Edge>();
+        this.follows = new LinkedList<>();
     }
 
     public int getStateID() {
