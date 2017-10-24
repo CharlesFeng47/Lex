@@ -8,7 +8,7 @@ package finiteAutomata;
 public class FA_Edge {
 
     /**
-     * 这条边上的标记
+     * 这条边上的标记，空用ε表示
      */
     private char label;
 

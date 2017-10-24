@@ -17,13 +17,14 @@ public class FA_State {
 
     /**
      * 此节点对应的后续状态链接
+     *
      */
-    private List<FA_State> follows;
+    private List<FA_Edge> follows;
 
 
     public FA_State(int stateID) {
         this.stateID = stateID;
-        this.follows = new LinkedList<FA_State>();
+        this.follows = new LinkedList<FA_Edge>();
     }
 
     public int getStateID() {
@@ -34,11 +35,11 @@ public class FA_State {
         this.stateID = stateID;
     }
 
-    public List<FA_State> getFollows() {
+    public List<FA_Edge> getFollows() {
         return follows;
     }
 
-    public void setFollows(List<FA_State> follows) {
+    public void setFollows(List<FA_Edge> follows) {
         this.follows = follows;
     }
 }

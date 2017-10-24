@@ -24,6 +24,29 @@ public class NFA {
      */
     private List<FA_Edge> terminatedStates;
 
+    public FA_State getStart() {
+        return start;
+    }
+
+    public void setStart(FA_State start) {
+        this.start = start;
+    }
+
+    public List<FA_State> getStates() {
+        return states;
+    }
+
+    public void setStates(List<FA_State> states) {
+        this.states = states;
+    }
+
+    public List<FA_Edge> getTerminatedStates() {
+        return terminatedStates;
+    }
+
+    public void setTerminatedStates(List<FA_Edge> terminatedStates) {
+        this.terminatedStates = terminatedStates;
+    }
     /**
      * @param s 要检查的词素
      * @return 词素是否合法

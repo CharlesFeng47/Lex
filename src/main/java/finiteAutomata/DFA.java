@@ -1,5 +1,8 @@
 package finiteAutomata;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by cuihua on 2017/10/24.
  * <p>
@@ -26,4 +29,20 @@ public class DFA extends NFA {
     }
 
 
+    /**
+     * 计算当前节点的ε闭包 ε-closure
+     */
+    private List<FA_State> closure(FA_State nowState) {
+        List<FA_State> result = new LinkedList<FA_State>();
+        result.add(nowState);
+
+        // 遍历当前节点的每一个后续节点
+        for (FA_Edge tempEdge : nowState.getFollows()) {
+            if (tempEdge.getLabel() == 'ε'){
+                result.addAll(closure(tempEdge.getPointTo()));
+            }
+        }
+
+        return result;
+    }
 }
