@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,25 +46,20 @@ public class DFATest {
         follow1.add(edge1);
         follow1.add(edge2);
         state1.setFollows(follow1);
-
         List<FA_Edge> follow2 = new LinkedList<>();
         follow2.add(edge3);
         follow2.add(edge4);
         state2.setFollows(follow2);
-
         List<FA_Edge> follow3 = new LinkedList<>();
         follow3.add(edge5);
         follow3.add(edge6);
         state3.setFollows(follow3);
-
         List<FA_Edge> follow4 = new LinkedList<>();
         follow4.add(edge7);
         state4.setFollows(follow4);
-
         List<FA_Edge> follow5 = new LinkedList<>();
         follow5.add(edge8);
         state5.setFollows(follow5);
-
         List<FA_Edge> follow7 = new LinkedList<>();
         follow7.add(edge9);
         state7.setFollows(follow7);
@@ -71,9 +67,29 @@ public class DFATest {
         List<Character> alphabet = new LinkedList<>();
         alphabet.add('a');
 
-        nfa = new DFA();
+        List<FA_State> terminatedStates = new LinkedList<>();
+        terminatedStates.add(state6);
+        terminatedStates.add(state8);
+        terminatedStates.add(state9);
+        terminatedStates.add(state10);
+
+        List<FA_State> allStates = new LinkedList<>();
+        terminatedStates.add(state1);
+        terminatedStates.add(state2);
+        terminatedStates.add(state3);
+        terminatedStates.add(state4);
+        terminatedStates.add(state5);
+        terminatedStates.add(state6);
+        terminatedStates.add(state7);
+        terminatedStates.add(state8);
+        terminatedStates.add(state9);
+        terminatedStates.add(state10);
+
+        nfa = new NFA();
         nfa.setAlphabet(alphabet);
         nfa.setStart(state1);
+        nfa.setTerminatedStates(terminatedStates);
+        nfa.setStates(allStates);
     }
 
     @After
@@ -104,7 +120,11 @@ public class DFATest {
     @Test
     public void testClosure() throws Exception {
         DFA dfa = new DFA();
-        List<FA_State> result = dfa.closure(nfa.getStart());
+
+        Method method = DFA.class.getDeclaredMethod("closure", FA_State.class);
+        method.setAccessible(true);
+        method.invoke(new DFA(), nfa);
+//        List<FA_State> result = dfa.closure(nfa.getStart());
 
         // 需比对的答案
         // state: closure
@@ -113,9 +133,9 @@ public class DFATest {
         // 3: 3, 7, 8
         // 4: 4, 5, 9
         // 7: 7
-        for (FA_State temp : result) {
-            System.out.println(temp.getStateID());
-        }
+//        for (FA_State temp : result) {
+//            System.out.println(temp.getStateID());
+//        }
     }
 
 } 

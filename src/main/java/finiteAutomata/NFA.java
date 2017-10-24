@@ -1,65 +1,12 @@
 package finiteAutomata;
 
-import java.util.List;
-
 /**
  * Created by cuihua on 2017/10/24.
  * <p>
  * Nondeterministic FA，不确定的有穷自动机
  */
-public class NFA {
+public class NFA extends FA {
 
-    /**
-     * 开始状态
-     */
-    private FA_State start;
-
-    /**
-     * 所有状态
-     */
-    private List<FA_State> states;
-
-    /**
-     * 终止／接受态
-     */
-    private List<FA_Edge> terminatedStates;
-
-    /**
-     * 字母表
-     */
-    private List<Character> alphabet;
-
-    public FA_State getStart() {
-        return start;
-    }
-
-    public void setStart(FA_State start) {
-        this.start = start;
-    }
-
-    public List<FA_State> getStates() {
-        return states;
-    }
-
-    public void setStates(List<FA_State> states) {
-        this.states = states;
-    }
-
-    public List<FA_Edge> getTerminatedStates() {
-        return terminatedStates;
-    }
-
-    public List<Character> getAlphabet() {
-        return alphabet;
-    }
-
-    public void setAlphabet(List<Character> alphabet) {
-        this.alphabet = alphabet;
-    }
-
-    public void setTerminatedStates(List<FA_Edge> terminatedStates) {
-        this.terminatedStates = terminatedStates;
-    }
     /**
      * @param s 要检查的词素
      * @return 词素是否合法
