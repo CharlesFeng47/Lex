@@ -32,23 +32,6 @@ public class DTran {
         this.label = label;
     }
 
-    // 控制台呈现该DTran
-    public void show() {
-        for (FA_State state : from) {
-            System.out.print(state.getStateID() + " ");
-        }
-        System.out.println();
-        System.out.print(label);
-        System.out.println();
-        for (FA_State state : to) {
-            System.out.print(state.getStateID() + " ");
-        }
-        System.out.println();
-        System.out.println();
-        System.out.println();
-    }
-
-
     public List<FA_State> getFrom() {
         return from;
     }
@@ -71,5 +54,21 @@ public class DTran {
 
     public void setLabel(char label) {
         this.label = label;
+    }
+
+    // 控制台呈现该DTran
+    public void show() {
+        for (FA_State state : from) {
+            System.out.print(state.getStateID() + " ");
+        }
+        System.out.println();
+        System.out.print(label);
+        System.out.println();
+        for (FA_State state : to) {
+            System.out.print(state.getStateID() + " ");
+        }
+        System.out.println();
+        System.out.println();
+        System.out.println();
     }
 }

@@ -74,16 +74,16 @@ public class DFATest {
         terminatedStates.add(state10);
 
         List<FA_State> allStates = new LinkedList<>();
-        terminatedStates.add(state1);
-        terminatedStates.add(state2);
-        terminatedStates.add(state3);
-        terminatedStates.add(state4);
-        terminatedStates.add(state5);
-        terminatedStates.add(state6);
-        terminatedStates.add(state7);
-        terminatedStates.add(state8);
-        terminatedStates.add(state9);
-        terminatedStates.add(state10);
+        allStates.add(state1);
+        allStates.add(state2);
+        allStates.add(state3);
+        allStates.add(state4);
+        allStates.add(state5);
+        allStates.add(state6);
+        allStates.add(state7);
+        allStates.add(state8);
+        allStates.add(state9);
+        allStates.add(state10);
 
         nfa = new NFA();
         nfa.setAlphabet(alphabet);
@@ -123,8 +123,7 @@ public class DFATest {
 
         Method method = DFA.class.getDeclaredMethod("closure", FA_State.class);
         method.setAccessible(true);
-        method.invoke(new DFA(), nfa);
-//        List<FA_State> result = dfa.closure(nfa.getStart());
+        method.invoke(dfa, nfa.getStart());
 
         // 需比对的答案
         // state: closure

@@ -179,6 +179,7 @@ public class DFA extends FA {
      */
     private boolean isTerminatedState(final List<FA_State> pre, final List<FA_State> toTest) {
         // 取交集无并集
+        // 注意：retainAll之后 toTest 会被修改，但是因为在调用方法中不会再使用，所以就不再深度拷贝复制了
         toTest.retainAll(pre);
         if (toTest.size() != 0) return true;
         else return true;

@@ -61,4 +61,12 @@ public class FA {
         this.alphabet = alphabet;
     }
 
+    /**
+     * @param s 要检查的词素
+     * @return 词素是否合法
+     */
+    protected boolean isValid(String s) {
+        return true;
+    }
+
 }
