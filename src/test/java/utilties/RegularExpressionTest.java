@@ -29,6 +29,16 @@ public class RegularExpressionTest {
     @Test
     public void testStandardizeRE() throws Exception {
         RegularExpression re = new RegularExpression();
+        System.out.println(re.standardizeRE("aba?a+abb+cc"));
+        System.out.println();
+        System.out.println(re.standardizeRE("(a|b)*"));
+        System.out.println();
+        System.out.println(re.standardizeRE("(a*|b*)*"));
+        System.out.println();
+        System.out.println(re.standardizeRE("((ε|a)b*)*"));
+        System.out.println();
+        System.out.println(re.standardizeRE("(a|b)*abb(a|b)*"));
+        System.out.println();
 
     }
 
@@ -46,9 +56,13 @@ public class RegularExpressionTest {
     public void testStandardizeExtendedMark() throws Exception {
         RegularExpression regularExpression = new RegularExpression();
 
-        Method method = RegularExpression.class.getDeclaredMethod("standardizeExtendedMark", String.class, int.class, ExtendedMark.class);
+        Method method = RegularExpression.class.getDeclaredMethod("standardizeExtendedMark", StringBuffer.class, int.class, ExtendedMark.class);
         method.setAccessible(true);
-        method.invoke(regularExpression, "cc(ab)+a", 6, ExtendedMark.PLUS_MARK);
+
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("cc(ab)+aaa");
+
+        method.invoke(regularExpression, stringBuffer, 6, ExtendedMark.PLUS_MARK);
 
         /*
         检测：
@@ -56,7 +70,7 @@ public class RegularExpressionTest {
         "aba?a", 3, ExtendedMark.QUESTION_MARK: ab(ε|a)a
         "cc(ab)?a", 6, ExtendedMark.QUESTION_MARK: cc(ε|(ab))a
         "aba+a", 3, ExtendedMark.PLUS_MARK: abaa*a
-        "cc(ab)+a", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)*a
+        "cc(ab)+aaa", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)*aaa
          */
     }
 

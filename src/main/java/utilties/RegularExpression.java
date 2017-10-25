@@ -1,5 +1,9 @@
 package utilties;
 
+import exceptions.UnexpectedRegularExprRuleException;
+
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -9,40 +13,81 @@ import java.util.Stack;
  */
 public class RegularExpression {
 
+    private List<String> unexpectedRERules;
+
+    public RegularExpression() {
+        unexpectedRERules = new LinkedList<>();
+        unexpectedRERules.add("(*");
+        unexpectedRERules.add("(|");
+        unexpectedRERules.add("|)");
+        unexpectedRERules.add("|*");
+        unexpectedRERules.add("||");
+        unexpectedRERules.add("·)");
+        unexpectedRERules.add("·*");
+        unexpectedRERules.add("·|");
+        unexpectedRERules.add("(·");
+        unexpectedRERules.add("|·");
+        unexpectedRERules.add("··");
+    }
+
     /**
-     * 添加省略的连接符'·'，将 +、? 用基本符号代替
+     * 默认re不含有连接符
+     * 将 +、? 用基本符号代替
+     * 添加省略的连接符'·'（对所有操作符画出所有的可能情况）
      *
      * @param re 输入的正则表达式
      * @return 标准的没有扩展语法如[], +, ?
      */
-    public String standardizeRE(String re) {
-        // 替换扩展符号
+    public String standardizeRE(final String re) throws UnexpectedRegularExprRuleException {
+        // 替换扩展符号，result存储替换后的字符串，differ表示替换前后的对当前处理字符的Index差
+        StringBuffer result = new StringBuffer().append(re);
+        int differ = 0;
         for (int i = 0; i < re.length() - 1; i++) {
             char c = re.charAt(i);
-            if (c == '?') re = standardizeExtendedMark(re, i, ExtendedMark.QUESTION_MARK);
-            if (c == '+') re = standardizeExtendedMark(re, i, ExtendedMark.PLUS_MARK);
+            if (c == '?') {
+                int preLength = result.length();
+                result = standardizeExtendedMark(result, i + differ, ExtendedMark.QUESTION_MARK);
+                differ += result.length() - preLength;
+            }
+            if (c == '+') {
+                int preLength = result.length();
+                result = standardizeExtendedMark(result, i + differ, ExtendedMark.PLUS_MARK);
+                differ += result.length() - preLength;
+            }
         }
 
-        StringBuffer result = new StringBuffer();
+        // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差
+        String tempResult = result.toString();
+        int joinCount = 0;
+        for (int i = 0; i < tempResult.length() - 1; i++) {
+            char before = tempResult.charAt(i);
+            char after = tempResult.charAt(i + 1);
 
-        // 补充连接符
-        for (int i = 0; i < re.length() - 2; ) {
-            char before = re.charAt(i);
-            char after = re.charAt(i + 1);
-            if (before == ')' && after == '(') {
-                result.append(')').append('·').append('(');
-                i += 2;
+            // 输入RE不合法
+            String temp = before + "" + after;
+            if (unexpectedRERules.contains(temp)) {
+                throw new UnexpectedRegularExprRuleException(temp);
             }
 
-        }
+            // 合法情况下含有连接符号的都不需要处理
+            if (before == '·' || after == '·') {
+                continue;
+            }
 
-        return re;
+            if (after == '(' || isValidChar(after)) {
+                if (before == ')' || before == '*' || isValidChar(before)) {
+                    result = standardizeJoinMark(result, i + joinCount);
+                    joinCount++;
+                }
+            }
+        }
+        return result.toString();
     }
 
     /**
      * 处理特殊符号（+／?）
      */
-    private String standardizeExtendedMark(final String re, int markIndex, ExtendedMark mark) {
+    private StringBuffer standardizeExtendedMark(final StringBuffer re, int markIndex, ExtendedMark mark) {
         StringBuffer result = new StringBuffer();
 
         // ? 前面是括号，需要找到核
@@ -50,8 +95,8 @@ public class RegularExpression {
         int contentStartIndex;
 
         if (re.charAt(markIndex - 1) == ')') {
-            String pre = re.substring(0, markIndex);
-            contentStartIndex = re.lastIndexOf('(');
+            // 核为非单字符
+            contentStartIndex = re.lastIndexOf("(");
             content = re.substring(contentStartIndex, markIndex);
         } else {
             // 核直接是前面的单个字符
@@ -65,10 +110,31 @@ public class RegularExpression {
         else if (mark == ExtendedMark.PLUS_MARK) result.append(content).append(content).append('*');
 
         // 如果 ? 不是最后一个字符，加上后续字符
-        if (markIndex != re.length() - 1) result.append(re.charAt(markIndex + 1));
+        if (markIndex != re.length() - 1) result.append(re.substring(markIndex + 1));
         System.out.println(result);
-        return result.toString();
+        return result;
     }
+
+    /**
+     * 增加省略的连接符（·）
+     * @param joinIndex 需要在两个字符中间添加连接符号，第一个字符的index
+     */
+    private StringBuffer standardizeJoinMark(final StringBuffer re, int joinIndex) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(re.substring(0, joinIndex+1)).append('·').append(re.substring(joinIndex + 1));
+        return sb;
+    }
+
+    /**
+     * 判断re中的输入字符是否合法
+     * 只支持数字和字母
+     */
+    private boolean isValidChar(char c) {
+        if (Character.isDigit(c)) return true;
+        if (Character.isLetter(c)) return true;
+        return false;
+    }
+
 
     /**
      * 将正则定义的中缀表达式改为后缀表达式
