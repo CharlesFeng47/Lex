@@ -27,7 +27,8 @@ public class NFATest {
     @Test
     public void testGetFromRE() throws Exception {
         NFA nfa = new NFA();
-        nfa.getFromRE("ab|*");
+//        nfa.getFromRE("ab|*");
+        nfa.getFromRE("ab·a|*");
     }
 
     /**

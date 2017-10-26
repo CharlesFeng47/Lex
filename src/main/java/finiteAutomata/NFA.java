@@ -115,10 +115,13 @@ public class NFA extends FA {
         follows.add(joinEdge);
         joinStart.setFollows(follows);
 
-        // 连接之后字母表相加，所有状态相加，终止态变为after，起始态不变
+        // 连接之后字母表取无重复并集，所有状态相加，终止态变为after，起始态不变
         List<Character> beforeAlphabet = before.getAlphabet();
+        List<Character> afterAlphabet = after.getAlphabet();
+        beforeAlphabet.removeAll(afterAlphabet);
+        beforeAlphabet.addAll(afterAlphabet);
+
         List<FA_State> beforeStates = before.getStates();
-        beforeAlphabet.addAll(after.getAlphabet());
         beforeStates.addAll(after.getStates());
         before.setTerminatedStates(after.getTerminatedStates());
 
@@ -164,9 +167,10 @@ public class NFA extends FA {
         preEndFollows2.add(orEdge4);
         preEnd2.setFollows(preEndFollows2);
 
-        // 重新构造NFA
+        // 重新构造NFA，字母集为无重复并集，所有状态相加，开始态和终止态为新态
         List<Character> alphabet = new LinkedList<>();
         alphabet.addAll(nfa1.getAlphabet());
+        alphabet.removeAll(nfa2.getAlphabet());
         alphabet.addAll(nfa2.getAlphabet());
 
         List<FA_State> terminatedStates = new FA_StatesList();
