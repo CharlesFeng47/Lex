@@ -45,6 +45,23 @@ public class NFA extends FA {
     }
 
     /**
+     * 确定接口后再写，不知道 nfaList 使用 List 还是 Stack
+     *
+     * @param nfaList 需要被连接的所有NFA
+     * @return 连接为一个NFA
+     */
+    public NFA combine(List<NFA> nfaList) {
+        if (nfaList.size() == 1) return nfaList.get(0);
+        else {
+            for (int i = 0; i < nfaList.size() - 1; i++) {
+                NFA nfa1 = nfaList.get(i);
+                NFA nfa2 = nfaList.get(i + 1);
+            }
+            return null;
+        }
+    }
+
+    /**
      * 将字符c转换为一个NFA
      */
     private Stack<NFA> add(Stack<NFA> handling, char c) {
@@ -158,6 +175,8 @@ public class NFA extends FA {
         List<FA_State> states = new FA_StatesList();
         states.addAll(nfa1.getStates());
         states.addAll(nfa2.getStates());
+        states.add(newStart);
+        states.add(newEnd);
 
         NFA newNFA = new NFA();
         newNFA.setStart(newStart);
@@ -201,12 +220,16 @@ public class NFA extends FA {
         preEndFollows.add(newEdge4);
         preEnd.setFollows(preEndFollows);
 
-        // 对闭包NFA，只修改开始态、终止态，字母表和所有状态不变
+        // 对闭包NFA，字母表不变，修改开始态、终止态、所有状态
+        nfa.setStart(newStart);
+
         List<FA_State> terminatedStates = new FA_StatesList();
         terminatedStates.add(newEnd);
-
-        nfa.setStart(newStart);
         nfa.setTerminatedStates(terminatedStates);
+
+        List<FA_State> states = nfa.getStates();
+        states.add(newStart);
+        states.add(newEnd);
 
         handling.push(nfa);
         return handling;
