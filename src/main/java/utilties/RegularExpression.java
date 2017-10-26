@@ -138,7 +138,7 @@ public class RegularExpression {
 
     /**
      * 将正则定义的中缀表达式改为后缀表达式
-     * 注：暂只考虑并、或、闭包，括号，未考虑[]，+，?等
+     * 注：暂只考虑并、或、闭包，括号，问号，加号，未考虑[]等
      */
     public String convertInfixToPostfix(String re) {
         // 存储结果的后缀字符串
@@ -166,10 +166,6 @@ public class RegularExpression {
                     break;
                 case '*':
                     sb.append(handleClosure(charStack));
-                    break;
-                case '+':
-                    break;
-                case '?':
                     break;
 
                 default:
