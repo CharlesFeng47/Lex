@@ -45,23 +45,6 @@ public class NFA extends FA {
     }
 
     /**
-     * 确定接口后再写，不知道 nfaList 使用 List 还是 Stack
-     *
-     * @param nfaList 需要被连接的所有NFA
-     * @return 连接为一个NFA
-     */
-    public NFA combine(List<NFA> nfaList) {
-        if (nfaList.size() == 1) return nfaList.get(0);
-        else {
-            for (int i = 0; i < nfaList.size() - 1; i++) {
-                NFA nfa1 = nfaList.get(i);
-                NFA nfa2 = nfaList.get(i + 1);
-            }
-            return null;
-        }
-    }
-
-    /**
      * 将字符c转换为一个NFA
      */
     private Stack<NFA> add(Stack<NFA> handling, char c) {
@@ -237,6 +220,63 @@ public class NFA extends FA {
 
         handling.push(nfa);
         return handling;
+    }
+
+
+    /**
+     * @param nfaStack 需要被连接的所有NFA
+     * @return 连接为一个NFA
+     */
+    public NFA combine(Stack<NFA> nfaStack) {
+        if (nfaStack.size() > 1) {
+            while (nfaStack.size() > 1) {
+                NFA nfa1 = nfaStack.pop();
+                NFA nfa2 = nfaStack.pop();
+
+                NFA newNFA = combineTwoNFA(nfa1, nfa2);
+                nfaStack.push(newNFA);
+            }
+        }
+        return nfaStack.pop();
+    }
+
+    private NFA combineTwoNFA(NFA nfa1, NFA nfa2) {
+        // 增加一个新的起始节点作为初始态
+        int nowID = FA_StateIDController.getID();
+        FA_State newStart = new FA_State(nowID);
+        FA_StateIDController.setID(++nowID);
+
+        // 连接原来的两个NFA
+        FA_Edge newEdge1 = new FA_Edge('ε', nfa1.getStart());
+        FA_Edge newEdge2 = new FA_Edge('ε', nfa2.getStart());
+
+        List<FA_Edge> startFollows = new LinkedList<>();
+        startFollows.add(newEdge1);
+        startFollows.add(newEdge2);
+        newStart.setFollows(startFollows);
+
+        // 重新构造NFA，字母集为无重复并集，所有状态和终止态相加，开始态为新态
+        List<Character> alphabet = new LinkedList<>();
+        alphabet.addAll(nfa1.getAlphabet());
+        alphabet.removeAll(nfa2.getAlphabet());
+        alphabet.addAll(nfa2.getAlphabet());
+
+        List<FA_State> terminatedStates = new FA_StatesList();
+        terminatedStates.addAll(nfa1.getTerminatedStates());
+        terminatedStates.addAll(nfa2.getTerminatedStates());
+
+        List<FA_State> states = new FA_StatesList();
+        states.addAll(nfa1.getStates());
+        states.addAll(nfa2.getStates());
+        states.add(newStart);
+
+        NFA newNFA = new NFA();
+        newNFA.setStart(newStart);
+        newNFA.setAlphabet(alphabet);
+        newNFA.setTerminatedStates(terminatedStates);
+        newNFA.setStates(states);
+
+        return newNFA;
     }
 
 }
