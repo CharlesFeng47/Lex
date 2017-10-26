@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -50,6 +51,9 @@ public class RegularExpressionTest {
         RegularExpression re = new RegularExpression();
         System.out.println(re.convertInfixToPostfix("(a|b)*"));
         System.out.println(re.convertInfixToPostfix("(a*|b*)*"));
+        System.out.println(re.convertInfixToPostfix("((ε|a)·b*)*"));
+        System.out.println(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*"));
+        System.out.println(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c"));
     }
 
     @Test
@@ -74,4 +78,28 @@ public class RegularExpressionTest {
          */
     }
 
+
+    /**
+     * Method: comparePriority(char curChar, char top)
+     */
+    @Test
+    public void testComparePriority() throws Exception {
+
+        try {
+            Method method = RegularExpression.class.getDeclaredMethod("comparePriority", char.class, char.class);
+            method.setAccessible(true);
+            method.invoke(new RegularExpression(), '*', '*');
+
+            /*
+            测试：
+            '|', '*':true
+            '·', '*':true
+            '·', '(':false
+            '*', '*':true
+             */
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+        }
+    }
 } 

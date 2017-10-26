@@ -13,7 +13,16 @@ import java.util.Stack;
  */
 public class RegularExpression {
 
-    private List<String> unexpectedRERules;
+    /**
+     * 不可能存在的正则定义
+     */
+    private static List<String> unexpectedRERules;
+
+    /**
+     * 标准化的正则表达式中优先级序列
+     * 优先级越高，越靠后
+     */
+    private static List<Character> priority;
 
     public RegularExpression() {
         unexpectedRERules = new LinkedList<>();
@@ -28,6 +37,12 @@ public class RegularExpression {
         unexpectedRERules.add("(·");
         unexpectedRERules.add("|·");
         unexpectedRERules.add("··");
+
+        priority = new LinkedList<>();
+        priority.add(0, '(');
+        priority.add(1, '·');
+        priority.add(2, '|');
+        priority.add(3, '*');
     }
 
     /**
@@ -117,11 +132,12 @@ public class RegularExpression {
 
     /**
      * 增加省略的连接符（·）
+     *
      * @param joinIndex 需要在两个字符中间添加连接符号，第一个字符的index
      */
     private StringBuffer standardizeJoinMark(final StringBuffer re, int joinIndex) {
         StringBuffer sb = new StringBuffer();
-        sb.append(re.substring(0, joinIndex+1)).append('·').append(re.substring(joinIndex + 1));
+        sb.append(re.substring(0, joinIndex + 1)).append('·').append(re.substring(joinIndex + 1));
         return sb;
     }
 
@@ -137,42 +153,62 @@ public class RegularExpression {
 
 
     /**
-     * 将正则定义的中缀表达式改为后缀表达式
-     * 注：暂只考虑并、或、闭包，括号，问号，加号，未考虑[]等
+     * 将标准化后的正则定义的中缀表达式改为后缀表达式
+     * 注：暂只考虑并、或、闭包，括号
      */
     public String convertInfixToPostfix(String re) {
         // 存储结果的后缀字符串
         StringBuffer sb = new StringBuffer(re.length());
 
-        // 操作符的栈、元素的栈
+        // 操作符的栈
         Stack<Character> operandStack = new Stack<>();
-        Stack<Character> charStack = new Stack<>();
 
         for (char c : re.toCharArray()) {
-            switch (c) {
-                case '(':
-                    operandStack.push('(');
-                    break;
-                case ')':
-                    if (operandStack.peek() == '(') {
-                        operandStack.pop();
-                    }
-                    break;
-                case '·':
-                    handleTwoOperand(operandStack, '·');
-                    break;
-                case '|':
-                    handleTwoOperand(operandStack, '|');
-                    break;
-                case '*':
-                    sb.append(handleClosure(charStack));
-                    break;
+            // 非操作符
+            if (isValidChar(c)) {
+                sb.append(c);
+                continue;
+            }
 
-                default:
-                    sb.append(handleCommonChar(operandStack, charStack, c));
-                    break;
+            // 操作符
+            if (c == '(') operandStack.push('(');
+            else if (c == ')') {
+                // 退栈至匹配的'('
+                char top;
+                while ((top = operandStack.pop()) != '(') {
+                    sb.append(top);
+                }
+            } else {
+                if (!operandStack.empty()) {
+                    char top = operandStack.peek();
+
+                    while (true) {
+                        // 退栈高优先级的操作符，最后再压栈当前操作符
+                        // 没有优先级更高的操作符时跳出
+                        if (comparePriority(c, top)){
+                            operandStack.pop();
+                            sb.append(top);
+                        } else break;
+
+                        // 操作栈不为空时继续比较，否则跳出
+                        if (!operandStack.empty()) {
+                            top = operandStack.peek();
+                        } else break;
+                    }
+
+                    operandStack.push(c);
+                } else {
+                    // 操作符栈中之前无堆栈，将此操作符压栈
+                    operandStack.push(c);
+                }
 
             }
+        }
+
+        // 栈中剩余操作符
+        while (!operandStack.empty()) {
+            char top = operandStack.pop();
+            sb.append(top);
         }
 
         return sb.toString();
@@ -180,46 +216,15 @@ public class RegularExpression {
 
 
     /**
-     * 处理RE中的二元操作符（连接运算'·'／或运算'|'）
+     * @param curChar 当前读取的操作符
+     * @param top     当前符号栈的栈顶操作符
+     * @return true 如果 curChar 优先级小于等于 top 优先级，top 需要被弹出。false otherwise
      */
-    private void handleTwoOperand(Stack<Character> stack, char operand) {
-        // 压栈
-        stack.push(operand);
-    }
-
-    /**
-     * 处理RE中的闭包符号'*'
-     */
-    private StringBuffer handleClosure(Stack<Character> charStack) {
-        // 获取字符栈重的上一个元素，如果栈中没有元素就表示之前存在括号，已处理，直接添加'*'就好
-        StringBuffer sb = new StringBuffer();
-
-        if (charStack.empty()) sb.append('*');
-        else {
-            char preChar = charStack.pop();
-            sb.append(preChar).append('*');
-        }
-        return sb;
-    }
-
-    /**
-     * 处理RE中的普通符号
-     */
-    private StringBuffer handleCommonChar(Stack<Character> operandStack, Stack<Character> charStack, char toHandle) {
-        // 栈中为空就直接连接'·'，否则需要弹出栈顶元素，连接栈顶元素
-        StringBuffer sb = new StringBuffer();
-        if (operandStack.empty()) {
-            sb.append(toHandle).append('·');
-        } else {
-            char topOperand = operandStack.peek();
-            if (topOperand == '(') {
-                charStack.push(toHandle);
-            } else {
-                char preChar = charStack.pop();
-                sb.append(preChar).append(toHandle).append(topOperand);
-            }
-        }
-        return sb;
+    private boolean comparePriority(char curChar, char top) {
+        int curCharIndex = priority.indexOf(curChar);
+        int topCharIndex = priority.indexOf(top);
+        System.out.println((curCharIndex - topCharIndex) <= 0);
+        return (curCharIndex - topCharIndex) <= 0;
     }
 
 }
