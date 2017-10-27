@@ -1,4 +1,6 @@
-package finiteAutomata;
+package finiteAutomata.entity;
+
+import finiteAutomata.entity.FA_Edge;
 
 import java.util.LinkedList;
 import java.util.List;

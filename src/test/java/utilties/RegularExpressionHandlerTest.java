@@ -1,5 +1,6 @@
 package utilties;
 
+import finiteAutomata.RegularExpressionHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,13 +9,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * RegularExpression Tester.
+ * RegularExpressionHandler Tester.
  *
  * @author <Authors name>
  * @version 1.0
  * @since <pre>十月 25, 2017</pre>
  */
-public class RegularExpressionTest {
+public class RegularExpressionHandlerTest {
 
     @Before
     public void before() throws Exception {
@@ -29,7 +30,7 @@ public class RegularExpressionTest {
      */
     @Test
     public void testStandardizeRE() throws Exception {
-        RegularExpression re = new RegularExpression();
+        RegularExpressionHandler re = new RegularExpressionHandler();
         System.out.println(re.standardizeRE("aba?a+abb+cc"));
         System.out.println();
         System.out.println(re.standardizeRE("(a|b)*"));
@@ -48,7 +49,7 @@ public class RegularExpressionTest {
      */
     @Test
     public void testConvertInfixToPostfix() throws Exception {
-        RegularExpression re = new RegularExpression();
+        RegularExpressionHandler re = new RegularExpressionHandler();
         System.out.println(re.convertInfixToPostfix("(a|b)*"));
         System.out.println(re.convertInfixToPostfix("(a*|b*)*"));
         System.out.println(re.convertInfixToPostfix("((ε|a)·b*)*"));
@@ -58,15 +59,15 @@ public class RegularExpressionTest {
 
     @Test
     public void testStandardizeExtendedMark() throws Exception {
-        RegularExpression regularExpression = new RegularExpression();
+        RegularExpressionHandler regularExpressionHandler = new RegularExpressionHandler();
 
-        Method method = RegularExpression.class.getDeclaredMethod("standardizeExtendedMark", StringBuffer.class, int.class, ExtendedMark.class);
+        Method method = RegularExpressionHandler.class.getDeclaredMethod("standardizeExtendedMark", StringBuffer.class, int.class, ExtendedMark.class);
         method.setAccessible(true);
 
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("cc(ab)+aaa");
 
-        method.invoke(regularExpression, stringBuffer, 6, ExtendedMark.PLUS_MARK);
+        method.invoke(regularExpressionHandler, stringBuffer, 6, ExtendedMark.PLUS_MARK);
 
         /*
         检测：
@@ -86,9 +87,9 @@ public class RegularExpressionTest {
     public void testComparePriority() throws Exception {
 
         try {
-            Method method = RegularExpression.class.getDeclaredMethod("comparePriority", char.class, char.class);
+            Method method = RegularExpressionHandler.class.getDeclaredMethod("comparePriority", char.class, char.class);
             method.setAccessible(true);
-            method.invoke(new RegularExpression(), '*', '*');
+            method.invoke(new RegularExpressionHandler(), '*', '*');
 
             /*
             测试：

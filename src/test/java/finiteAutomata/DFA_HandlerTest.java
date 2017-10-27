@@ -1,5 +1,8 @@
 package finiteAutomata;
 
+import finiteAutomata.entity.FA_Edge;
+import finiteAutomata.entity.FA_State;
+import finiteAutomata.entity.NFA;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +18,9 @@ import java.util.List;
  * @version 1.0
  * @since <pre>十月 24, 2017</pre>
  */
-public class DFATest {
+public class DFA_HandlerTest {
 
-    NFA nfa;
+    private NFA nfa;
 
     @Before
     public void before() throws Exception {
@@ -101,8 +104,8 @@ public class DFATest {
      */
     @Test
     public void testGetFromNFA() throws Exception {
-        DFA dfa = new DFA();
-        dfa.getFromNFA(nfa);
+        DFA_Handler handler = new DFA_Handler();
+        handler.getFromNFA(nfa);
 
     }
 
@@ -119,11 +122,11 @@ public class DFATest {
      */
     @Test
     public void testClosure() throws Exception {
-        DFA dfa = new DFA();
+        DFA_Handler handler = new DFA_Handler();
 
-        Method method = DFA.class.getDeclaredMethod("closure", FA_State.class);
+        Method method = DFA_Handler.class.getDeclaredMethod("closure", FA_State.class);
         method.setAccessible(true);
-        method.invoke(dfa, nfa.getStart());
+        method.invoke(handler, nfa.getStart());
 
         // 需比对的答案
         // state: closure
@@ -137,4 +140,4 @@ public class DFATest {
 //        }
     }
 
-} 
+}

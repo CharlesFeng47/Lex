@@ -1,6 +1,6 @@
 package utilties;
 
-import finiteAutomata.FA_State;
+import finiteAutomata.entity.FA_State;
 
 import java.util.Comparator;
 

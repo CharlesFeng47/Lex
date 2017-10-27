@@ -1,6 +1,4 @@
-package utilties;
-
-import finiteAutomata.FA_State;
+package finiteAutomata.entity;
 
 import java.util.List;
 

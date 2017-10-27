@@ -11,7 +11,7 @@ import org.junit.Test;
  * @version 1.0
  * @since <pre>十月 26, 2017</pre>
  */
-public class NFATest {
+public class NFA_HandlerTest {
 
     @Before
     public void before() throws Exception {
@@ -26,9 +26,8 @@ public class NFATest {
      */
     @Test
     public void testGetFromRE() throws Exception {
-        NFA nfa = new NFA();
-//        nfa.getFromRE("ab|*");
-        nfa.getFromRE("ab·a|*");
+        NFA_Handler handler = new NFA_Handler();
+        handler.getFromRE("ab·a|*");
     }
 
     /**
@@ -36,8 +35,8 @@ public class NFATest {
      */
     @Test
     public void testCombine() throws Exception {
-//TODO: Test goes here... 
+//TODO: Test goes here...
     }
 
 
-} 
+}

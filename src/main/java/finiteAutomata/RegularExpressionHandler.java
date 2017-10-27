@@ -1,6 +1,7 @@
-package utilties;
+package finiteAutomata;
 
 import exceptions.UnexpectedRegularExprRuleException;
+import utilties.ExtendedMark;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Stack;
  * <p>
  * 输入的正则表达式
  */
-public class RegularExpression {
+public class RegularExpressionHandler {
 
     /**
      * 不可能存在的正则定义
@@ -24,7 +25,7 @@ public class RegularExpression {
      */
     private static List<Character> priority;
 
-    public RegularExpression() {
+    public RegularExpressionHandler() {
         unexpectedRERules = new LinkedList<>();
         unexpectedRERules.add("(*");
         unexpectedRERules.add("(|");
@@ -49,6 +50,7 @@ public class RegularExpression {
      * 默认re不含有连接符
      * 将 +、? 用基本符号代替
      * 添加省略的连接符'·'（对所有操作符画出所有的可能情况）
+     * TODO 增加对 {m, n} 的实现
      *
      * @param re 输入的正则表达式
      * @return 标准的没有扩展语法如[], +, ?

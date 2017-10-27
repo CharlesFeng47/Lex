@@ -1,4 +1,4 @@
-package finiteAutomata;
+package finiteAutomata.entity;
 
 /**
  * Created by cuihua on 2017/10/24.

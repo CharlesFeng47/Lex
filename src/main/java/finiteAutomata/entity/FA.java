@@ -1,4 +1,4 @@
-package finiteAutomata;
+package finiteAutomata.entity;
 
 import java.util.List;
 

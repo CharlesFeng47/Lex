@@ -1,6 +1,7 @@
 package finiteAutomata;
 
-import utilties.DTran;
+import finiteAutomata.entity.*;
+import finiteAutomata.entity.DTran;
 import utilties.FA_StateComparator;
 import utilties.FA_StatesList;
 
@@ -10,12 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by cuihua on 2017/10/24.
- * <p>
- * Deterministic FA，确定的有穷自动机
+ * Created by cuihua on 2017/10/27.
+ *
+ * 对 NFA 进行处理
+ * NFA => DFA
+ * optimize DFA
  */
-public class DFA extends FA {
-
+public class DFA_Handler {
 
     /**
      * @param nfa 需要转变的NFA
@@ -58,10 +60,9 @@ public class DFA extends FA {
                         FA_State tempState = curFollowing.get(i);
                         List<FA_State> tempClosure = closure(tempState);
 
-                        for (FA_State state : tempClosure) {
-                            System.out.println(curFollowing.contains(state));
-                            if (!curFollowing.contains(state)) curFollowing.add(state);
-                        }
+                        // 在 curFollowing 中加入所有 tempClosure 没有的元素
+                        curFollowing.removeAll(tempClosure);
+                        curFollowing.addAll(tempClosure);
                     }
 
                     // 排序后对比，判断此集合是都在dStates中
@@ -110,15 +111,6 @@ public class DFA extends FA {
     }
 
     /**
-     * @param dfa 需要被优化的DFA
-     * @return 具有最少状态的DFA
-     */
-    public DFA optimize(DFA dfa) {
-        return null;
-    }
-
-
-    /**
      * 计算当前节点的ε闭包 ε-closure
      */
     private List<FA_State> closure(FA_State nowState) {
@@ -128,7 +120,7 @@ public class DFA extends FA {
         // 遍历当前节点的每一个后续节点
         for (FA_Edge tempEdge : nowState.getFollows()) {
             if (tempEdge.getLabel() == 'ε') {
-                // 若结果集中不包含此节点，则将此节点加入结果集
+                // 若 closure 结果集中不包含此节点，则将此节点加入结果集
                 if (!result.contains(tempEdge.getPointTo())) result.addAll(closure(tempEdge.getPointTo()));
             }
         }
@@ -183,5 +175,35 @@ public class DFA extends FA {
         toTest.retainAll(pre);
         if (toTest.size() != 0) return true;
         else return true;
+    }
+
+
+    /**
+     * @param dfa 需要被优化的DFA
+     * @return 具有最少状态的DFA
+     */
+    public DFA optimize(DFA dfa) {
+        List<FA_State> nonTerminatedStates = new FA_StatesList();
+        List<FA_State> terminatedStates = dfa.getTerminatedStates();
+        List<Character> alphabet = dfa.getAlphabet();
+
+        nonTerminatedStates.addAll(dfa.getStates());
+        nonTerminatedStates.removeAll(terminatedStates);
+
+        FA_Node node1 = new FA_Node(nonTerminatedStates);
+        FA_Node node2 = new FA_Node(terminatedStates);
+
+        while (true) {
+
+            for (char c : alphabet) {
+
+            }
+
+
+            break;
+        }
+
+
+        return null;
     }
 }

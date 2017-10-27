@@ -1,5 +1,8 @@
 package finiteAutomata;
 
+import finiteAutomata.entity.FA_Edge;
+import finiteAutomata.entity.FA_State;
+import finiteAutomata.entity.NFA;
 import utilties.FA_StateIDController;
 import utilties.FA_StatesList;
 
@@ -8,12 +11,13 @@ import java.util.List;
 import java.util.Stack;
 
 /**
- * Created by cuihua on 2017/10/24.
- * <p>
- * Nondeterministic FA，不确定的有穷自动机
+ * Created by cuihua on 2017/10/27.
+ *
+ * 对 NFA 进行处理
+ * RE => NFA
+ * combine 多个 NFA
  */
-public class NFA extends FA {
-
+public class NFA_Handler {
 
     /**
      * @param re 标准化的正则定义后缀表达式
