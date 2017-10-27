@@ -25,6 +25,7 @@ public class FA_Controller {
             // 处理当前 RE
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
+                System.out.println("-------------- " + re + " --------------");
             } catch (UnexpectedRegularExprRuleException e) {
                 e.printStackTrace();
             }
@@ -32,10 +33,12 @@ public class FA_Controller {
             // RE => NFA
             NFA nfa = nfaHandler.getFromRE(re);
             convertedNFA.push(nfa);
+            System.out.println("*************** finish convert " + re + " to NFA ***************");
         }
 
         // 合并所有 NFA 为一个 NFA
         NFA finalNFA = nfaHandler.combine(convertedNFA);
+        System.out.println("-------------- combine all NFA to ONE --------------");
 
         // 转化为最小DFA
         // TODO 暂未实现最小DFA

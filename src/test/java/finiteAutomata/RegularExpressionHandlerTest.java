@@ -1,9 +1,9 @@
-package utilties;
+package finiteAutomata;
 
-import finiteAutomata.RegularExpressionHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import utilties.ExtendedMark;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,9 +31,11 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testStandardizeRE() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
+        System.out.println(re.standardizeRE("a+"));
+        System.out.println();
         System.out.println(re.standardizeRE("aba?a+abb+cc"));
         System.out.println();
-        System.out.println(re.standardizeRE("(a|b)*"));
+        System.out.println(re.standardizeRE("(a|b)+"));
         System.out.println();
         System.out.println(re.standardizeRE("(a*|b*)*"));
         System.out.println();
@@ -55,6 +57,11 @@ public class RegularExpressionHandlerTest {
         System.out.println(re.convertInfixToPostfix("((ε|a)·b*)*"));
         System.out.println(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*"));
         System.out.println(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c"));
+
+        /*
+        ab|*a·b·b·ab|*·
+        ab·εa|·a·a*·a·b·b·b*·c·c·
+         */
     }
 
     @Test

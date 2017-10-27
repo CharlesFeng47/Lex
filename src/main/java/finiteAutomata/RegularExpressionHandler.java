@@ -59,7 +59,7 @@ public class RegularExpressionHandler {
         // 替换扩展符号，result存储替换后的字符串，differ表示替换前后的对当前处理字符的Index差
         StringBuffer result = new StringBuffer().append(re);
         int differ = 0;
-        for (int i = 0; i < re.length() - 1; i++) {
+        for (int i = 0; i < re.length(); i++) {
             char c = re.charAt(i);
             if (c == '?') {
                 int preLength = result.length();

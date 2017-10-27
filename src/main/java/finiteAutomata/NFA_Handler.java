@@ -12,7 +12,7 @@ import java.util.Stack;
 
 /**
  * Created by cuihua on 2017/10/27.
- *
+ * <p>
  * 对 NFA 进行处理
  * RE => NFA
  * combine 多个 NFA
@@ -64,9 +64,9 @@ public class NFA_Handler {
         start.setFollows(follows);
 
 
-        // 构造NFA
+        // 构造NFA，边的标记为 ε 时，不计入字母表
         List<Character> alphabet = new LinkedList<>();
-        alphabet.add(c);
+        if (c != 'ε') alphabet.add(c);
 
         List<FA_State> terminatedStates = new FA_StatesList();
         terminatedStates.add(end);

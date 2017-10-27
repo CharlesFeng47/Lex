@@ -2,6 +2,7 @@ package finiteAutomata;
 
 import finiteAutomata.entity.*;
 import finiteAutomata.entity.DTran;
+import utilties.ClosureRecursionHandler;
 import utilties.FA_StateComparator;
 import utilties.FA_StatesList;
 
@@ -29,6 +30,9 @@ public class DFA_Handler {
         // dStates为<闭包, 已标记>
         Map<List<FA_State>, Boolean> dStates = new HashMap<>();
         dStates.put(closure(nfa.getStart()), false);
+
+        // 清理当前节点计算 closure 时的递归现场
+        ClosureRecursionHandler.reset();
 
         while (true) {
             // dStates中是否还有未标记的状态，并对未标记的状态进行处理
@@ -59,6 +63,9 @@ public class DFA_Handler {
                     for (int i = 0; i < curFollowingSize; i++) {
                         FA_State tempState = curFollowing.get(i);
                         List<FA_State> tempClosure = closure(tempState);
+
+                        // 清理当前节点计算 closure 时的递归现场
+                        ClosureRecursionHandler.reset();
 
                         // 在 curFollowing 中加入所有 tempClosure 没有的元素
                         curFollowing.removeAll(tempClosure);
@@ -116,12 +123,18 @@ public class DFA_Handler {
     private List<FA_State> closure(FA_State nowState) {
         List<FA_State> result = new FA_StatesList();
         result.add(nowState);
+        ClosureRecursionHandler.addState(nowState);
 
         // 遍历当前节点的每一个后续节点
         for (FA_Edge tempEdge : nowState.getFollows()) {
             if (tempEdge.getLabel() == 'ε') {
-                // 若 closure 结果集中不包含此节点，则将此节点加入结果集
-                if (!result.contains(tempEdge.getPointTo())) result.addAll(closure(tempEdge.getPointTo()));
+                // 若递归 closure 结果集中不包含此节点，则将此节点加入结果集
+                FA_State nextState = tempEdge.getPointTo();
+                if (!ClosureRecursionHandler.contain(nextState)) {
+                    List<FA_State> temp = closure(nextState);
+                    result.addAll(temp);
+                    ClosureRecursionHandler.addAllState(temp);
+                }
             }
         }
 

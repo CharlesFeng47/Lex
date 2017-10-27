@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * DFA Tester.
+ * DFA_Handler Tester.
  *
  * @author <Authors name>
  * @version 1.0
@@ -104,8 +104,8 @@ public class DFA_HandlerTest {
      */
     @Test
     public void testGetFromNFA() throws Exception {
-        DFA_Handler handler = new DFA_Handler();
-        handler.getFromNFA(nfa);
+        DFA_Handler dfaHandler = new DFA_Handler();
+        dfaHandler.getFromNFA(nfa);
 
     }
 
@@ -122,11 +122,11 @@ public class DFA_HandlerTest {
      */
     @Test
     public void testClosure() throws Exception {
-        DFA_Handler handler = new DFA_Handler();
+        DFA_Handler dfaHandler = new DFA_Handler();
 
         Method method = DFA_Handler.class.getDeclaredMethod("closure", FA_State.class);
         method.setAccessible(true);
-        method.invoke(handler, nfa.getStart());
+        method.invoke(dfaHandler, nfa.getStart());
 
         // 需比对的答案
         // state: closure
