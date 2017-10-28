@@ -114,6 +114,8 @@ public class DFA_HandlerTest {
      */
     @Test
     public void testOptimize() throws Exception {
+        DFA_Handler dfaHandler = new DFA_Handler();
+        dfaHandler.optimize(dfaHandler.getFromNFA(nfa));
     }
 
 

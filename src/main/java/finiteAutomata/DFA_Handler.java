@@ -251,8 +251,6 @@ public class DFA_Handler {
             // 所有叶节点内部的 FA_State 都是等价的
             boolean isWeakEqual = true;
             for (int i = 0; i < nodes.size(); ) {
-                List<FA_State> curNodeStates = nodes.get(i).getStates();
-
                 // 子集分化
                 for (char c : alphabet) {
                     List<FA_Node> tempResult = optimizeOneNodeOneChar(dfa, nodes, nodes.get(i), c);
@@ -264,7 +262,8 @@ public class DFA_Handler {
                         isWeakEqual = false;
                     }
 
-                    i += tempResult.size() - 1;
+                    // 下个节点 i++ 偏差 tempResult.size() - 1
+                    i += tempResult.size();
                 }
 
             }
@@ -341,12 +340,13 @@ public class DFA_Handler {
         List<FA_State> following = new FA_StatesList();
         for (FA_State parentState : node.getStates()) {
             // 该节点在该映射条件下的后继
-            FA_State sonState = dfa.getMove().get(parentState).get(c);
-            if (sonState == null) {
-                parentToNull.add(parentState);
-            } else {
+            Map<Character, FA_State> curEdges = dfa.getMove().get(parentState);
+            if (curEdges != null) {
+                FA_State sonState = curEdges.get(c);
                 parentNotToNull.add(parentState);
                 following.add(sonState);
+            } else {
+                parentToNull.add(parentState);
             }
         }
 
