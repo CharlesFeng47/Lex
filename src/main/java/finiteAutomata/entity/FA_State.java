@@ -1,7 +1,5 @@
 package finiteAutomata.entity;
 
-import finiteAutomata.entity.FA_Edge;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +17,6 @@ public class FA_State {
 
     /**
      * 此节点对应的后续状态链接
-     *
      */
     private List<FA_Edge> follows;
 

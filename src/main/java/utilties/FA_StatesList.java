@@ -2,6 +2,7 @@ package utilties;
 
 import finiteAutomata.entity.FA_State;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 /**
@@ -10,6 +11,13 @@ import java.util.LinkedList;
  * 优化查找为二分法，速度更快
  */
 public class FA_StatesList extends LinkedList<FA_State> {
+
+    public FA_StatesList() {
+    }
+
+    public FA_StatesList(Collection<? extends FA_State> c) {
+        super(c);
+    }
 
     @Override
     public int indexOf(Object o) {

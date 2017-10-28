@@ -1,6 +1,6 @@
 package finiteAutomata.entity;
 
-import finiteAutomata.entity.FA;
+import java.util.Map;
 
 /**
  * Created by cuihua on 2017/10/24.
@@ -9,4 +9,18 @@ import finiteAutomata.entity.FA;
  */
 public class DFA extends FA {
 
+    /**
+     * DFA 中各状态之间的转换关系
+     * 第一个 state(FA_State) 通过 label(Character) 到达第二个 state(FA_State)
+     */
+    Map<FA_State, Map<Character, FA_State>> move;
+
+
+    public Map<FA_State, Map<Character, FA_State>> getMove() {
+        return move;
+    }
+
+    public void setMove(Map<FA_State, Map<Character, FA_State>> move) {
+        this.move = move;
+    }
 }

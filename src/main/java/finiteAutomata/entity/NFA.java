@@ -1,7 +1,5 @@
 package finiteAutomata.entity;
 
-import finiteAutomata.entity.FA;
-
 /**
  * Created by cuihua on 2017/10/24.
  * <p>

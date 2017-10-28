@@ -1,12 +1,10 @@
 package finiteAutomata.entity;
 
-import finiteAutomata.entity.FA_State;
-
 import java.util.List;
 
 /**
  * Created by cuihua on 2017/10/26.
- *
+ * <p>
  * 最小化 DFA 过程中形成的等价 FA_State 组成的集合
  */
 public class FA_Node {

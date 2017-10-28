@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Created by cuihua on 2017/10/24.
- *
+ * <p>
  * 表示有穷自动机
  */
 public class FA {
@@ -65,7 +65,7 @@ public class FA {
      * @param s 要检查的词素
      * @return 词素是否合法
      */
-    protected boolean isValid(String s) {
+    public boolean isValid(String s) {
         return true;
     }
 

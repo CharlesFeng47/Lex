@@ -1,8 +1,8 @@
 package finiteAutomata;
 
 import finiteAutomata.entity.*;
-import finiteAutomata.entity.DTran;
 import utilties.ClosureRecursionHandler;
+import utilties.FA_NodesList;
 import utilties.FA_StateComparator;
 import utilties.FA_StatesList;
 
@@ -13,12 +13,14 @@ import java.util.Map;
 
 /**
  * Created by cuihua on 2017/10/27.
- *
+ * <p>
  * 对 NFA 进行处理
  * NFA => DFA
  * optimize DFA
  */
 public class DFA_Handler {
+
+    private static FA_StateComparator comparator = new FA_StateComparator();
 
     /**
      * @param nfa 需要转变的NFA
@@ -73,7 +75,7 @@ public class DFA_Handler {
                     }
 
                     // 排序后对比，判断此集合是都在dStates中
-                    curFollowing.sort(new FA_StateComparator());
+                    curFollowing.sort(comparator);
                     if (!isInDSates(dStates, curFollowing)) {
                         dStates.put(curFollowing, false);
                     }
@@ -96,12 +98,17 @@ public class DFA_Handler {
         List<FA_State> curStates = new LinkedList<>();
         List<FA_State> curTerminatedStates = new FA_StatesList();
 
-        // 因为dStates是逐步压入的，所以形成的状态序号是倒序
-        int curIndex = dStates.size() - 1;
+        // 标记子集构造法中形成的等价节点和现在简化的节点之间的映射
+        Map<List<FA_State>, FA_State> faStatesConvertTable = new HashMap<>();
+
+        // dStates 顺序压入，重新更换为简单 FA_State 也是顺序
+        int curIndex = 0;
         for (List<FA_State> nowConvertedNFAStates : dStates.keySet()) {
             FA_State state = new FA_State(curIndex);
             curStates.add(state);
-            curIndex--;
+            curIndex++;
+
+            faStatesConvertTable.put(nowConvertedNFAStates, state);
 
             // 含有原NFA终止态的即为现终止态
             if (isTerminatedState(preTerminatedStates, nowConvertedNFAStates)) {
@@ -109,11 +116,32 @@ public class DFA_Handler {
             }
         }
 
+        // 把 dTrans 上的连接加入现在 DFA，并存入 DFA 成员变量 move
+        Map<FA_State, Map<Character, FA_State>> move = new HashMap<>();
+        for (DTran dTran : dTrans) {
+            FA_State curStart = faStatesConvertTable.get(dTran.getFrom());
+            FA_State curTo = faStatesConvertTable.get(dTran.getTo());
+            char label = dTran.getLabel();
+
+            FA_Edge curEdge = new FA_Edge(label, curTo);
+            curStart.getFollows().add(curEdge);
+
+            Map<Character, FA_State> curMove = move.get(curStart);
+            if (curMove != null) {
+                curMove.put(label, curTo);
+            } else {
+                curMove = new HashMap<>();
+                curMove.put(label, curTo);
+                move.put(curStart, curMove);
+            }
+        }
+
         DFA dfa = new DFA();
-        dfa.setStart(curStates.get(curStates.size() - 1));
+        dfa.setStart(curStates.get(0));
         dfa.setAlphabet(nfa.getAlphabet());
         dfa.setStates(curStates);
         dfa.setTerminatedStates(curTerminatedStates);
+        dfa.setMove(move);
         return dfa;
     }
 
@@ -138,7 +166,7 @@ public class DFA_Handler {
             }
         }
 
-        result.sort(new FA_StateComparator());
+        result.sort(comparator);
         return result;
     }
 
@@ -156,7 +184,7 @@ public class DFA_Handler {
             }
         }
 
-        result.sort(new FA_StateComparator());
+        result.sort(comparator);
         return result;
     }
 
@@ -184,9 +212,12 @@ public class DFA_Handler {
      */
     private boolean isTerminatedState(final List<FA_State> pre, final List<FA_State> toTest) {
         // 取交集无并集
-        // 注意：retainAll之后 toTest 会被修改，但是因为在调用方法中不会再使用，所以就不再深度拷贝复制了
-        toTest.retainAll(pre);
-        if (toTest.size() != 0) return true;
+        // 深度拷贝复制 toTest，保证 retainAll 之后 toTest 不会被修改
+        List<FA_State> newList = new FA_StatesList();
+        newList.addAll(toTest);
+        newList.retainAll(pre);
+
+        if (newList.size() != 0) return true;
         else return true;
     }
 
@@ -200,23 +231,159 @@ public class DFA_Handler {
         List<FA_State> terminatedStates = dfa.getTerminatedStates();
         List<Character> alphabet = dfa.getAlphabet();
 
+        // 构造初始两个集合 终结状态／非终结状态
         nonTerminatedStates.addAll(dfa.getStates());
         nonTerminatedStates.removeAll(terminatedStates);
+
+        nonTerminatedStates.sort(comparator);
+        terminatedStates.sort(comparator);
 
         FA_Node node1 = new FA_Node(nonTerminatedStates);
         FA_Node node2 = new FA_Node(terminatedStates);
 
+        // 第一次分的这两个集合手动排序，让程序先处理非终结状态
+        List<FA_Node> nodes = new FA_NodesList();
+        nodes.add(node2);
+        nodes.add(node1);
+
         while (true) {
 
-            for (char c : alphabet) {
+            // 所有叶节点内部的 FA_State 都是等价的
+            boolean isWeakEqual = true;
+            for (int i = 0; i < nodes.size(); ) {
+                List<FA_State> curNodeStates = nodes.get(i).getStates();
+
+                // 子集分化
+                for (char c : alphabet) {
+                    List<FA_Node> tempResult = optimizeOneNodeOneChar(dfa, nodes, nodes.get(i), c);
+
+                    nodes.remove(i);
+                    nodes.addAll(i, tempResult);
+
+                    if (tempResult.size() > 1) {
+                        isWeakEqual = false;
+                    }
+
+                    i += tempResult.size() - 1;
+                }
 
             }
 
-
-            break;
+            // 全都弱等价，结束算法
+            if (isWeakEqual) break;
         }
 
+        // 重构 DFA
+        Map<FA_State, FA_State> deleteTran = new HashMap<>();
+        for (FA_Node node : nodes) {
+            // 只需要第一个状态作为代表，从后面向前删除
+            List<FA_State> division = node.getStates();
+            while (division.size() > 1) {
+                int deleteIndex = division.size() - 1;
+                deleteTran.put(division.get(deleteIndex), division.get(0));
 
+                node.getStates().remove(deleteIndex);
+            }
+        }
+
+        // 移除这些状态
+        List<FA_State> needDeleteStates = new FA_StatesList(deleteTran.keySet());
+        dfa.getStates().removeAll(needDeleteStates);
+        dfa.getTerminatedStates().removeAll(needDeleteStates);
+
+        // 转移链接关系
+        // 需移除节点 指向 其他节点
+        for (FA_State state : needDeleteStates) {
+            dfa.getMove().remove(state);
+        }
+
+        // 其他节点 指向 需移除节点
+        for (Map.Entry<FA_State, Map<Character, FA_State>> curMove : dfa.getMove().entrySet()) {
+            FA_State curStart = curMove.getKey();
+            // 转换表
+            for (Map.Entry<Character, FA_State> curEdge : curMove.getValue().entrySet()) {
+                if (needDeleteStates.contains(curEdge.getValue())) {
+                    char label = curEdge.getKey();
+                    FA_State deleteState = curEdge.getValue();
+
+                    curMove.getValue().remove(label);
+                    curMove.getValue().put(label, deleteTran.get(deleteState));
+
+                }
+            }
+
+            // 状态链接
+            for (FA_Edge curEdge : curStart.getFollows()) {
+                if (needDeleteStates.contains(curEdge.getPointTo())) {
+                    curEdge.setPointTo(deleteTran.get(curEdge.getPointTo()));
+                    ;
+                }
+            }
+        }
+
+        return dfa;
+    }
+
+    /**
+     * 在特定字母下优化一个 FA_Node 节点
+     *
+     * @param dfa         当前 DFA
+     * @param curDivision 目前的分化
+     * @param node        要优化的叶节点
+     * @param c           分化基于的条件
+     */
+    private List<FA_Node> optimizeOneNodeOneChar(final DFA dfa, List<FA_Node> curDivision, FA_Node node, char c) {
+        List<FA_Node> result = new FA_NodesList();
+
+        // 子集分化，保存结果
+        List<FA_State> parentToNull = new FA_StatesList();
+        List<FA_State> parentNotToNull = new FA_StatesList();
+        List<FA_State> following = new FA_StatesList();
+        for (FA_State parentState : node.getStates()) {
+            // 该节点在该映射条件下的后继
+            FA_State sonState = dfa.getMove().get(parentState).get(c);
+            if (sonState == null) {
+                parentToNull.add(parentState);
+            } else {
+                parentNotToNull.add(parentState);
+                following.add(sonState);
+            }
+        }
+
+        if (parentToNull.size() != 0) {
+            result.add(new FA_Node(parentToNull));
+        }
+
+        // 判断 following 是不是在同一叶节点中
+        Map<FA_Node, List<FA_State>> judge = new HashMap<>();
+        for (FA_State state : following) {
+            FA_Node belongingNode = getBelongingNode(curDivision, state);
+            if (judge.get(belongingNode) == null) {
+                List<FA_State> temp = new FA_StatesList();
+                temp.add(state);
+                judge.put(belongingNode, temp);
+            } else {
+                judge.get(belongingNode).add(state);
+            }
+        }
+
+        if (judge.size() > 1) {
+            // 形成了不同的分化
+            for (List<FA_State> states : judge.values()) {
+                result.add(new FA_Node(states));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 找到当前状态所在的节点
+     */
+    private FA_Node getBelongingNode(List<FA_Node> curDivision, FA_State state) {
+        for (FA_Node node : curDivision) {
+            if (node.getStates().contains(state)) return node;
+        }
         return null;
     }
 }

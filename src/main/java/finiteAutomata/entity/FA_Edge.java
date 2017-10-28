@@ -2,7 +2,7 @@ package finiteAutomata.entity;
 
 /**
  * Created by cuihua on 2017/10/24.
- *
+ * <p>
  * 有穷自动机中的链接
  */
 public class FA_Edge {
