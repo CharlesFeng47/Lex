@@ -3,6 +3,7 @@ package finiteAutomata;
 import exceptions.UnexpectedRegularExprRuleException;
 import finiteAutomata.entity.DFA;
 import finiteAutomata.entity.NFA;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 import java.util.Stack;
@@ -13,6 +14,8 @@ import java.util.Stack;
  * 控制将输入的所有 RE 转换为拥有最少数目状态的 DFA
  */
 public class FA_Controller {
+
+    private static final Logger logger = Logger.getLogger(FA_Controller.class);
 
     public DFA lexicalAnalysis(List<String> res) {
 
@@ -25,7 +28,7 @@ public class FA_Controller {
             // 处理当前 RE
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-                System.out.println("-------------- " + re + " --------------");
+                logger.debug("-------------- " + re + " --------------");
             } catch (UnexpectedRegularExprRuleException e) {
                 e.printStackTrace();
             }
@@ -33,12 +36,12 @@ public class FA_Controller {
             // RE => NFA
             NFA nfa = nfaHandler.getFromRE(re);
             convertedNFA.push(nfa);
-            System.out.println("*************** finish convert " + re + " to NFA ***************");
+            logger.debug("*************** finish convert " + re + " to NFA ***************");
         }
 
         // 合并所有 NFA 为一个 NFA
         NFA finalNFA = nfaHandler.combine(convertedNFA);
-        System.out.println("-------------- combine all NFA to ONE --------------");
+        logger.debug("-------------- combine all NFA to ONE --------------");
 
         // 转化为最小DFA
         // TODO 暂未实现最小DFA

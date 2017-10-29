@@ -1,6 +1,7 @@
 package finiteAutomata;
 
 import exceptions.UnexpectedRegularExprRuleException;
+import org.apache.log4j.Logger;
 import utilties.ExtendedMark;
 
 import java.util.LinkedList;
@@ -13,6 +14,8 @@ import java.util.Stack;
  * 输入的正则表达式
  */
 public class RegularExpressionHandler {
+
+    private static final Logger logger = Logger.getLogger(RegularExpressionHandler.class);
 
     /**
      * 不可能存在的正则定义
@@ -128,7 +131,7 @@ public class RegularExpressionHandler {
 
         // 如果 ? 不是最后一个字符，加上后续字符
         if (markIndex != re.length() - 1) result.append(re.substring(markIndex + 1));
-        System.out.println(result);
+        logger.debug(result);
         return result;
     }
 
@@ -187,7 +190,7 @@ public class RegularExpressionHandler {
                     while (true) {
                         // 退栈高优先级的操作符，最后再压栈当前操作符
                         // 没有优先级更高的操作符时跳出
-                        if (comparePriority(c, top)){
+                        if (comparePriority(c, top)) {
                             operandStack.pop();
                             sb.append(top);
                         } else break;
@@ -225,8 +228,10 @@ public class RegularExpressionHandler {
     private boolean comparePriority(char curChar, char top) {
         int curCharIndex = priority.indexOf(curChar);
         int topCharIndex = priority.indexOf(top);
-        System.out.println((curCharIndex - topCharIndex) <= 0);
-        return (curCharIndex - topCharIndex) <= 0;
+
+        boolean result = (curCharIndex - topCharIndex) <= 0;
+        logger.debug("优先级：当前符号" + curChar + "小于等于栈顶符号" + top + ": " + result);
+        return result;
     }
 
 }
