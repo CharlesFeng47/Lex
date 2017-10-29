@@ -121,7 +121,7 @@ public class DFA_HandlerTest {
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();
 
-        String re = "(a|b)*a(a|b)(a|b)";
+        String re = "(a|b)*a(a|b)";
         re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
         System.out.println("---------------- " + re + " ----------------");
 

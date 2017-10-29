@@ -6,10 +6,7 @@ import utilties.FA_NodesList;
 import utilties.FA_StateComparator;
 import utilties.FA_StatesList;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/10/27.
@@ -29,8 +26,8 @@ public class DFA_Handler {
     public DFA getFromNFA(NFA nfa) {
         List<DTran> dTrans = new LinkedList<>();
 
-        // dStates为<闭包, 已标记>
-        Map<List<FA_State>, Boolean> dStates = new HashMap<>();
+        // dStates为<闭包, 已标记>，LinkedHashMap保证为顺序而不是 hash 过的
+        Map<List<FA_State>, Boolean> dStates = new LinkedHashMap<>();
         dStates.put(closure(nfa.getStart()), false);
 
         // 清理当前节点计算 closure 时的递归现场
