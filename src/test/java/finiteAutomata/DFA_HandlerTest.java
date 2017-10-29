@@ -1,5 +1,7 @@
 package finiteAutomata;
 
+import exceptions.UnexpectedRegularExprRuleException;
+import finiteAutomata.entity.DFA;
 import finiteAutomata.entity.FA_Edge;
 import finiteAutomata.entity.FA_State;
 import finiteAutomata.entity.NFA;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * DFA_Handler Tester.
@@ -103,10 +106,65 @@ public class DFA_HandlerTest {
      * Method: getFromNFA(NFA nfa)
      */
     @Test
-    public void testGetFromNFA() throws Exception {
+    public void testGetFromNFA1() throws Exception {
         DFA_Handler dfaHandler = new DFA_Handler();
         dfaHandler.getFromNFA(nfa);
 
+    }
+
+    /**
+     * Method: getFromNFA(NFA nfa)
+     */
+    @Test
+    public void testGetFromNFA2() throws Exception {
+        RegularExpressionHandler rgHandler = new RegularExpressionHandler();
+        NFA_Handler nfaHandler = new NFA_Handler();
+        DFA_Handler dfaHandler = new DFA_Handler();
+
+        String re = "(a|b)*a(a|b)(a|b)";
+        re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
+        System.out.println("---------------- " + re + " ----------------");
+
+        NFA finalNFA = nfaHandler.getFromRE(re);
+        System.out.println("*************** finish convert " + re + " to NFA ***************");
+
+        // 转化为 DFA
+        DFA dfa = dfaHandler.getFromNFA(finalNFA);
+        System.out.println("all states size: " + dfa.getStates().size());
+    }
+
+    /**
+     * Method: getFromNFA(NFA nfa)
+     */
+    @Test
+    public void testGetFromNFA3() throws Exception {
+        RegularExpressionHandler rgHandler = new RegularExpressionHandler();
+        NFA_Handler nfaHandler = new NFA_Handler();
+        DFA_Handler dfaHandler = new DFA_Handler();
+
+        List<String> res = new LinkedList<>();
+        res.add("(a|b)*a(a|b)(a|b)");
+
+        Stack<NFA> convertedNFA = new Stack<>();
+        for (String re : res) {
+            try {
+                re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
+                System.out.println("---------------- " + re + " ----------------");
+            } catch (UnexpectedRegularExprRuleException e) {
+                e.printStackTrace();
+            }
+
+            NFA nfa = nfaHandler.getFromRE(re);
+            convertedNFA.push(nfa);
+            System.out.println("*************** finish convert " + re + " to NFA ***************");
+        }
+
+        NFA finalNFA = nfaHandler.combine(convertedNFA);
+        System.out.println("-------------- combine all NFA to ONE --------------");
+
+        // 转化为 DFA
+        DFA dfa = dfaHandler.getFromNFA(finalNFA);
+        System.out.println("all states size: " + dfa.getStates().size());
     }
 
     /**

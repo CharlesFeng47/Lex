@@ -22,6 +22,7 @@ public class ClosureRecursionHandler {
      */
     public static void reset() {
         states = new FA_StatesList();
+        System.out.println("Already reset the ClosureRecursionHandler");
     }
 
     /**

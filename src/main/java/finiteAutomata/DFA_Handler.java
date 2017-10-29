@@ -60,28 +60,31 @@ public class DFA_Handler {
                 if (curFollowingSize != 0) {
                     // 否则此等价状态在此字符上无后继状态，标记为空
 
+                    // 保存当前要计算闭包的核
+                    List<FA_State> curFollowingClosure = new FA_StatesList();
+                    curFollowingClosure.addAll(curFollowing);
+
+
                     // 遍历后继的核，得到核的闭包
-                    // 不采用foreach的形式，因为curFollowing在过程中添加新的后继状态
-                    for (int i = 0; i < curFollowingSize; i++) {
-                        FA_State tempState = curFollowing.get(i);
+                    for (FA_State tempState : curFollowing) {
                         List<FA_State> tempClosure = closure(tempState);
 
                         // 清理当前节点计算 closure 时的递归现场
                         ClosureRecursionHandler.reset();
 
-                        // 在 curFollowing 中加入所有 tempClosure 没有的元素
-                        curFollowing.removeAll(tempClosure);
-                        curFollowing.addAll(tempClosure);
+                        // 在 curFollowingClosure 中加入所有 tempClosure 没有的元素
+                        curFollowingClosure.removeAll(tempClosure);
+                        curFollowingClosure.addAll(tempClosure);
                     }
 
                     // 排序后对比，判断此集合是都在dStates中
-                    curFollowing.sort(comparator);
-                    if (!isInDSates(dStates, curFollowing)) {
-                        dStates.put(curFollowing, false);
+                    curFollowingClosure.sort(comparator);
+                    if (!isInDSates(dStates, curFollowingClosure)) {
+                        dStates.put(curFollowingClosure, false);
                     }
 
                     // 标记dTrans转换表
-                    dTrans.add(new DTran(unhandled, curFollowing, c));
+                    dTrans.add(new DTran(unhandled, curFollowingClosure, c));
                 }
             }
         }
@@ -161,7 +164,6 @@ public class DFA_Handler {
                 if (!ClosureRecursionHandler.contain(nextState)) {
                     List<FA_State> temp = closure(nextState);
                     result.addAll(temp);
-                    ClosureRecursionHandler.addAllState(temp);
                 }
             }
         }
@@ -193,14 +195,15 @@ public class DFA_Handler {
      */
     private boolean isInDSates(Map<List<FA_State>, Boolean> DStates, List<FA_State> states) {
         for (Map.Entry<List<FA_State>, Boolean> entry : DStates.entrySet()) {
-            if (entry.getKey().size() == states.size()) {
+            List<FA_State> keyStates = entry.getKey();
+            if (keyStates.size() == states.size()) {
+                boolean allEqual = true;
                 for (int i = 0; i < states.size(); i++) {
-                    boolean allEqual = true;
-                    if (states.get(i).getStateID() != entry.getKey().get(i).getStateID()) allEqual = false;
-
-                    // 找到已经存在的状态
-                    if (allEqual) return true;
+                    if (states.get(i).getStateID() != keyStates.get(i).getStateID()) allEqual = false;
                 }
+
+                // 找到已经存在的状态
+                if (allEqual) return true;
             }
         }
         return false;
