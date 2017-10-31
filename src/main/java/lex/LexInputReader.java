@@ -1,3 +1,5 @@
+package lex;
+
 import java.util.List;
 
 /**
@@ -7,10 +9,12 @@ import java.util.List;
  */
 public class LexInputReader {
 
-    private String path;
+    /**
+     * .l 文件的路径
+     */
+    private static final String path = "";
 
-    public LexInputReader(String path) {
-        this.path = path;
+    public LexInputReader() {
     }
 
     public List<String> readREs() {
