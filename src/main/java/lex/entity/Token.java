@@ -1,7 +1,5 @@
 package lex.entity;
 
-import utilties.PatternType;
-
 /**
  * Created by cuihua on 2017/10/31.
  *
@@ -12,18 +10,18 @@ public class Token {
     /**
      * 模式
      */
-    private PatternType patternType;
+    private String patternType;
 
     /**
      * 属性值
      */
     private String attribute;
 
-    public PatternType getPatternType() {
+    public String getPatternType() {
         return patternType;
     }
 
-    public void setPatternType(PatternType patternType) {
+    public void setPatternType(String patternType) {
         this.patternType = patternType;
     }
 

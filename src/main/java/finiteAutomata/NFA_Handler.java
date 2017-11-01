@@ -5,7 +5,6 @@ import finiteAutomata.entity.FA_State;
 import finiteAutomata.entity.NFA;
 import utilties.FA_StateIDController;
 import utilties.FA_StatesList;
-import utilties.PatternType;
 
 import java.util.*;
 
@@ -21,13 +20,13 @@ public class NFA_Handler {
     /**
      * 映射 NFA 与其对应的模式 PatternType
      */
-    private Map<FA_State, PatternType> nfaPatternMatchingMap;
+    private Map<FA_State, String> nfaPatternMatchingMap;
 
     public NFA_Handler() {
         nfaPatternMatchingMap = new HashMap<>();
     }
 
-    public Map<FA_State, PatternType> getNfaPatternMatchingMap() {
+    public Map<FA_State, String> getNfaPatternMatchingMap() {
         return nfaPatternMatchingMap;
     }
 
@@ -36,7 +35,7 @@ public class NFA_Handler {
      * @param patternType 此正则定义对应的模式 patternType
      * @return 此正则定义对应的NFA
      */
-    public NFA getFromRE(String re, PatternType patternType) {
+    public NFA getFromRE(String re, String patternType) {
         // 栈中暂时保存处理过的NFA
         Stack<NFA> handling = new Stack<>();
 

@@ -3,7 +3,6 @@ package finiteAutomata;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import utilties.PatternType;
 
 /**
  * NFA Tester.
@@ -28,7 +27,7 @@ public class NFA_HandlerTest {
     @Test
     public void testGetFromRE() throws Exception {
         NFA_Handler handler = new NFA_Handler();
-        handler.getFromRE("ab·a|*", PatternType.ID);
+        handler.getFromRE("ab·a|*", "ID");
     }
 
     /**

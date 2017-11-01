@@ -17,15 +17,16 @@ public class FA_Controller {
 
     private static final Logger logger = Logger.getLogger(FA_Controller.class);
 
-    public DFA lexicalAnalysis(List<String> res) {
+    public DFA lexicalAnalysis(List<String> res, List<String> patternType) {
 
         RegularExpressionHandler rgHandler = new RegularExpressionHandler();
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();
 
         Stack<NFA> convertedNFA = new Stack<>();
-        for (String re : res) {
+        for (int i = 0; i < res.size(); i++) {
             // 处理当前 RE
+            String re = res.get(i);
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
                 logger.debug("正在处理正则定义 " + re);
@@ -34,8 +35,7 @@ public class FA_Controller {
             }
 
             // RE => NFA
-            // TODO 补上pattern
-            NFA nfa = nfaHandler.getFromRE(re, null);
+            NFA nfa = nfaHandler.getFromRE(re, patternType.get(i));
             convertedNFA.push(nfa);
             logger.debug("将正则定义 " + re + " 成功转化为 NFA");
         }

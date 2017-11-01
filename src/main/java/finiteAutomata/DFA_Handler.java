@@ -22,12 +22,12 @@ public class DFA_Handler {
     /**
      * 映射 DFA 与其对应的模式 PatternType
      */
-    private Map<FA_State, List<PatternType>> dfaPatternMatchingMap;
+    private Map<FA_State, List<String>> dfaPatternMatchingMap;
 
     public DFA_Handler() {
     }
 
-    public Map<FA_State, List<PatternType>> getDfaPatternMatchingMap() {
+    public Map<FA_State, List<String>> getDfaPatternMatchingMap() {
         return dfaPatternMatchingMap;
     }
 

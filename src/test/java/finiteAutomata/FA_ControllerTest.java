@@ -38,12 +38,18 @@ public class FA_ControllerTest {
 //        res.add("(a*|b*)*");
 //        res.add("((ε|a)b*)*");
         res.add("(a|b)*abb(a|b)*");
-//        res.add("aba?a+abb+cc");
-//        res.add("");
-//        res.add("");
-//        res.add("");
+        res.add("aba?a+abb+cc");
 
-        controller.lexicalAnalysis(res);
+        List<String> patterns = new LinkedList<>();
+        patterns.add("ID");
+        patterns.add("ID");
+        patterns.add("ID");
+        patterns.add("ID");
+        patterns.add("ID");
+        patterns.add("ID");
+        patterns.add("ID");
+
+        controller.lexicalAnalysis(res, patterns);
 
     }
 
