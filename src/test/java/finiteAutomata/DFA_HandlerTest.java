@@ -139,40 +139,6 @@ public class DFA_HandlerTest {
     }
 
     /**
-     * Method: getFromNFA(NFA defaultNFA)
-     */
-    @Test
-    public void testGetFromNFA3() throws Exception {
-        RegularExpressionHandler rgHandler = new RegularExpressionHandler();
-        NFA_Handler nfaHandler = new NFA_Handler();
-        DFA_Handler dfaHandler = new DFA_Handler();
-
-        List<String> res = new LinkedList<>();
-        res.add("(a|b)*a(a|b)(a|b)");
-
-        Stack<NFA> convertedNFA = new Stack<>();
-        for (String re : res) {
-            try {
-                re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-                logger.debug("-------------- " + re + " --------------");
-            } catch (UnexpectedRegularExprRuleException e) {
-                e.printStackTrace();
-            }
-
-            NFA nfa = nfaHandler.getFromRE(re, null);
-            convertedNFA.push(nfa);
-            logger.debug("************** finish convert " + re + " to NFA **************");
-        }
-
-        NFA finalNFA = nfaHandler.combine(convertedNFA);
-        logger.debug("-------------- combine all NFA to ONE --------------");
-
-        // 转化为 DFA
-        DFA dfa = dfaHandler.getFromNFA(finalNFA);
-        logger.debug("all states size: " + dfa.getStates().size());
-    }
-
-    /**
      * Method: optimize(DFA defaultNFA)
      */
     @Test

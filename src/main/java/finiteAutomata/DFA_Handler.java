@@ -99,7 +99,7 @@ public class DFA_Handler {
         }
 
         // 打印 DFA 的状态对应表
-        logger.info("NFA 经过子集构造法的状态集合转换表");
+        logger.info("NFA => DFA 子集构造法结束");
         for (DTran dTran : dTrans) {
             dTran.show();
         }
@@ -152,12 +152,7 @@ public class DFA_Handler {
 
         // 打印真正 DFA 的状态对应表
         logger.info("NFA 经过子集构造法完成后真正的状态转换表");
-        for (Map.Entry<FA_State, Map<Character, FA_State>> entryState : move.entrySet()) {
-            FA_State start = entryState.getKey();
-            for (Map.Entry<Character, FA_State> entryEdge : entryState.getValue().entrySet()) {
-                logger.info(start.getStateID() + " through " + entryEdge.getKey() + " to " + entryEdge.getValue().getStateID());
-            }
-        }
+        showDFATrans(move);
 
         DFA dfa = new DFA();
         dfa.setStart(curStates.get(0));
@@ -260,12 +255,15 @@ public class DFA_Handler {
         nonTerminatedStates.sort(comparator);
         terminatedStates.sort(comparator);
 
-        FA_Node node1 = new FA_Node(nonTerminatedStates);
-        FA_Node node2 = new FA_Node(terminatedStates);
-
         // 第一次分的这两个集合手动排序，让程序先处理非终结状态
         List<FA_Node> nodes = new FA_NodesList();
-        nodes.add(node1);
+
+        if (nonTerminatedStates.size() > 0) {
+            // 只有终结态
+            FA_Node node1 = new FA_Node(nonTerminatedStates);
+            nodes.add(node1);
+        }
+        FA_Node node2 = new FA_Node(terminatedStates);
         nodes.add(node2);
 
         // while 循环保证算法的 traceBacking 回头看
@@ -273,17 +271,17 @@ public class DFA_Handler {
             // 所有叶节点内部的 FA_State 都是等价的
             boolean isWeakEqual = true;
             for (int i = 0; i < nodes.size(); i++) {
-                // 子集分化
-                for (int j = 0; j < alphabet.size(); j++) {
 
-                    // 节点中只有一个状态，已是最少，无需再进行分化
-                    FA_Node curNode = nodes.get(i);
-                    if (curNode.getStates().size() == 1) {
-                        continue;
-                    }
+                // 节点中只有一个状态，已是最少，无需再进行分化此节点
+                if (nodes.get(i).getStates().size() == 1) {
+                    continue;
+                }
+
+                // 子集分化
+                for (int j = 0; j < alphabet.size(); ) {
 
                     char c = alphabet.get(j);
-                    List<FA_Node> tempResult = optimizeOneNodeOneChar(dfa, nodes, curNode, c);
+                    List<FA_Node> tempResult = optimizeOneNodeOneChar(dfa, nodes, nodes.get(i), c);
 
                     nodes.remove(i);
                     nodes.addAll(i, tempResult);
@@ -292,6 +290,8 @@ public class DFA_Handler {
                         // 发生了子集替换，重新遍历每个 label
                         isWeakEqual = false;
                         j = 0;
+                    } else {
+                        j++;
                     }
                 }
 
@@ -316,6 +316,12 @@ public class DFA_Handler {
     private List<FA_Node> optimizeOneNodeOneChar(final DFA dfa, List<FA_Node> curDivision, FA_Node node, char c) {
         List<FA_Node> result = new FA_NodesList();
 
+        if (node.getStates().size() == 1) {
+            // 节点中只有一个状态，已是最少，无需再进行分化此节点
+            result.add(node);
+            return result;
+        }
+
         // 在此 label 下分别无后继分化、有后继分化
         List<FA_State> parentToNull = new FA_StatesList();
         Map<FA_State, FA_State> parentToSon = new HashMap<>();
@@ -337,32 +343,37 @@ public class DFA_Handler {
         }
 
         if (parentToNull.size() != 0) {
+            parentToNull.sort(comparator);
             result.add(new FA_Node(parentToNull));
         }
 
-        // 判断 following 是不是在同一叶节点中（FA_Node 为此次判断中原来的Node，List<FA_State> 为此 Node 下的父节点）
-        Map<FA_Node, List<FA_State>> judge = new HashMap<>();
-        for (Map.Entry<FA_State, FA_State> entry : parentToSon.entrySet()) {
-            FA_State sonState = entry.getValue();
-            FA_Node belongingNode = getBelongingNode(curDivision, sonState);
-            if (judge.get(belongingNode) == null) {
-                List<FA_State> temp = new FA_StatesList();
-                temp.add(entry.getKey());
-                judge.put(belongingNode, temp);
-            } else {
-                judge.get(belongingNode).add(entry.getKey());
+        if (parentToSon.size() != 0) {
+            // 判断 following 是不是在同一叶节点中（FA_Node 为此次判断中原来的Node，List<FA_State> 为此 Node 下的父节点）
+            Map<FA_Node, List<FA_State>> judge = new HashMap<>();
+            for (Map.Entry<FA_State, FA_State> entry : parentToSon.entrySet()) {
+                FA_State sonState = entry.getValue();
+                FA_Node belongingNode = getBelongingNode(curDivision, sonState);
+                if (judge.get(belongingNode) == null) {
+                    List<FA_State> temp = new FA_StatesList();
+                    temp.add(entry.getKey());
+                    judge.put(belongingNode, temp);
+                } else {
+                    judge.get(belongingNode).add(entry.getKey());
+                }
             }
-        }
 
-        if (judge.size() > 1) {
-            // 形成了不同的分化
-            for (List<FA_State> states : judge.values()) {
+            if (judge.size() > 1) {
+                // 形成了不同的分化
+                for (List<FA_State> states : judge.values()) {
+                    states.sort(comparator);
+                    result.add(new FA_Node(states));
+                }
+            } else {
+                // parentToSon 不形成新分化
+                List<FA_State> states = new FA_StatesList(parentToSon.keySet());
                 states.sort(comparator);
                 result.add(new FA_Node(states));
             }
-        } else {
-            // 无新分化
-            result.add(node);
         }
 
         return result;
@@ -440,6 +451,20 @@ public class DFA_Handler {
             dfa.setStart(deleteTran.get(dfa.getStart()));
         }
 
+        logger.info("DFA 已经优化为最少数目");
+        showDFATrans(dfa.getMove());
         return dfa;
+    }
+
+    /**
+     * 输出 NFA 的转换信息到控制台
+     */
+    private void showDFATrans(Map<FA_State, Map<Character, FA_State>> move) {
+        for (Map.Entry<FA_State, Map<Character, FA_State>> entryState : move.entrySet()) {
+            FA_State start = entryState.getKey();
+            for (Map.Entry<Character, FA_State> entryEdge : entryState.getValue().entrySet()) {
+                logger.info(start.getStateID() + " through " + entryEdge.getKey() + " to " + entryEdge.getValue().getStateID());
+            }
+        }
     }
 }

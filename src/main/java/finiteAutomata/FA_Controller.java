@@ -28,7 +28,7 @@ public class FA_Controller {
             // 处理当前 RE
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-                logger.debug("---------------- " + re + " ----------------");
+                logger.debug("正在处理正则定义 " + re);
             } catch (UnexpectedRegularExprRuleException e) {
                 e.printStackTrace();
             }
@@ -37,17 +37,17 @@ public class FA_Controller {
             // TODO 补上pattern
             NFA nfa = nfaHandler.getFromRE(re, null);
             convertedNFA.push(nfa);
-            logger.debug("**************** finish convert " + re + " to NFA ****************");
+            logger.debug("将正则定义 " + re + " 成功转化为 NFA");
         }
 
         // 合并所有 NFA 为一个 NFA
         NFA finalNFA = nfaHandler.combine(convertedNFA);
-        logger.debug("---------------- combine all NFA to ONE ----------------");
+        logger.debug("所有 NFA 已被合并为一个");
 
         // 转化为最小DFA
-        // TODO 暂未实现最小DFA
-//        DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(finalNFA));
-        DFA dfa = dfaHandler.getFromNFA(finalNFA);
+        DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(finalNFA));
+        logger.debug("all states size: " + dfa.getStates().size());
+
         return dfa;
     }
 }

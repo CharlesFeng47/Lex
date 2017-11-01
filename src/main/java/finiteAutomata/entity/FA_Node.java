@@ -18,6 +18,8 @@ public class FA_Node {
         this.states = states;
     }
 
+
+
     public List<FA_State> getStates() {
         return states;
     }

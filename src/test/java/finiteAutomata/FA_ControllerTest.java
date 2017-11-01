@@ -34,11 +34,11 @@ public class FA_ControllerTest {
         List<String> res = new LinkedList<>();
         res.add("a+");
         res.add("a*|b*");
-        res.add("(a|b)*");
-        res.add("(a*|b*)*");
-        res.add("((ε|a)b*)*");
+//        res.add("(a|b)*");
+//        res.add("(a*|b*)*");
+//        res.add("((ε|a)b*)*");
         res.add("(a|b)*abb(a|b)*");
-        res.add("aba?a+abb+cc");
+//        res.add("aba?a+abb+cc");
 //        res.add("");
 //        res.add("");
 //        res.add("");
