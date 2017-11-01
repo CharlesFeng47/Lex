@@ -28,20 +28,21 @@ public class FA_Controller {
             // 处理当前 RE
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-                logger.debug("-------------- " + re + " --------------");
+                logger.debug("---------------- " + re + " ----------------");
             } catch (UnexpectedRegularExprRuleException e) {
                 e.printStackTrace();
             }
 
             // RE => NFA
-            NFA nfa = nfaHandler.getFromRE(re);
+            // TODO 补上pattern
+            NFA nfa = nfaHandler.getFromRE(re, null);
             convertedNFA.push(nfa);
-            logger.debug("*************** finish convert " + re + " to NFA ***************");
+            logger.debug("**************** finish convert " + re + " to NFA ****************");
         }
 
         // 合并所有 NFA 为一个 NFA
         NFA finalNFA = nfaHandler.combine(convertedNFA);
-        logger.debug("-------------- combine all NFA to ONE --------------");
+        logger.debug("---------------- combine all NFA to ONE ----------------");
 
         // 转化为最小DFA
         // TODO 暂未实现最小DFA

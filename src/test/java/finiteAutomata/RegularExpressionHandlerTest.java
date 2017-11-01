@@ -1,11 +1,11 @@
 package finiteAutomata;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import utilties.ExtendedMark;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
  * @since <pre>十月 25, 2017</pre>
  */
 public class RegularExpressionHandlerTest {
+
+    private static final Logger logger = Logger.getLogger(RegularExpressionHandlerTest.class);
 
     @Before
     public void before() throws Exception {
@@ -31,18 +33,12 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testStandardizeRE() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        System.out.println(re.standardizeRE("a+"));
-        System.out.println();
-        System.out.println(re.standardizeRE("aba?a+abb+cc"));
-        System.out.println();
-        System.out.println(re.standardizeRE("(a|b)+"));
-        System.out.println();
-        System.out.println(re.standardizeRE("(a*|b*)*"));
-        System.out.println();
-        System.out.println(re.standardizeRE("((ε|a)b*)*"));
-        System.out.println();
-        System.out.println(re.standardizeRE("(a|b)*abb(a|b)*"));
-        System.out.println();
+        logger.debug(re.standardizeRE("a+") + "\n");
+        logger.debug(re.standardizeRE("aba?a+abb+cc") + "\n");
+        logger.debug(re.standardizeRE("(a|b)+") + "\n");
+        logger.debug(re.standardizeRE("(a*|b*)*") + "\n");
+        logger.debug(re.standardizeRE("((ε|a)b*)*") + "\n");
+        logger.debug(re.standardizeRE("(a|b)*abb(a|b)*") + "\n");
 
     }
 
@@ -52,11 +48,11 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testConvertInfixToPostfix() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        System.out.println(re.convertInfixToPostfix("(a|b)*"));
-        System.out.println(re.convertInfixToPostfix("(a*|b*)*"));
-        System.out.println(re.convertInfixToPostfix("((ε|a)·b*)*"));
-        System.out.println(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*"));
-        System.out.println(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c"));
+        logger.debug(re.convertInfixToPostfix("(a|b)*") + "\n");
+        logger.debug(re.convertInfixToPostfix("(a*|b*)*") + "\n");
+        logger.debug(re.convertInfixToPostfix("((ε|a)·b*)*") + "\n");
+        logger.debug(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*") + "\n");
+        logger.debug(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c") + "\n");
 
         /*
         ab|*a·b·b·ab|*·
@@ -106,8 +102,6 @@ public class RegularExpressionHandlerTest {
             '*', '*':true
              */
         } catch (NoSuchMethodException e) {
-        } catch (IllegalAccessException e) {
-        } catch (InvocationTargetException e) {
         }
     }
 } 

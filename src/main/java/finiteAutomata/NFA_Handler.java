@@ -5,10 +5,9 @@ import finiteAutomata.entity.FA_State;
 import finiteAutomata.entity.NFA;
 import utilties.FA_StateIDController;
 import utilties.FA_StatesList;
+import utilties.PatternType;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/10/27.
@@ -20,10 +19,24 @@ import java.util.Stack;
 public class NFA_Handler {
 
     /**
-     * @param re 标准化的正则定义后缀表达式
+     * 映射 NFA 与其对应的模式 PatternType
+     */
+    private Map<FA_State, PatternType> nfaPatternMatchingMap;
+
+    public NFA_Handler() {
+        nfaPatternMatchingMap = new HashMap<>();
+    }
+
+    public Map<FA_State, PatternType> getNfaPatternMatchingMap() {
+        return nfaPatternMatchingMap;
+    }
+
+    /**
+     * @param re      标准化的正则定义后缀表达式
+     * @param patternType 此正则定义对应的模式 patternType
      * @return 此正则定义对应的NFA
      */
-    public NFA getFromRE(String re) {
+    public NFA getFromRE(String re, PatternType patternType) {
         // 栈中暂时保存处理过的NFA
         Stack<NFA> handling = new Stack<>();
 
@@ -44,8 +57,12 @@ public class NFA_Handler {
             }
         }
 
+        // 映射 NFA 与其对应的模式 pattern
+        NFA result = handling.get(0);
+        nfaPatternMatchingMap.put(result.getTerminatedStates().get(0), patternType);
+
         // 最终栈中剩下的唯一NFA即为所求
-        return handling.get(0);
+        return result;
     }
 
     /**

@@ -5,6 +5,7 @@ import finiteAutomata.entity.DFA;
 import finiteAutomata.entity.FA_Edge;
 import finiteAutomata.entity.FA_State;
 import finiteAutomata.entity.NFA;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -23,7 +25,9 @@ import java.util.Stack;
  */
 public class DFA_HandlerTest {
 
-    private NFA nfa;
+    private static final Logger logger = Logger.getLogger(DFA_HandlerTest.class);
+
+    private NFA defaultNFA;
 
     @Before
     public void before() throws Exception {
@@ -91,11 +95,11 @@ public class DFA_HandlerTest {
         allStates.add(state9);
         allStates.add(state10);
 
-        nfa = new NFA();
-        nfa.setAlphabet(alphabet);
-        nfa.setStart(state1);
-        nfa.setTerminatedStates(terminatedStates);
-        nfa.setStates(allStates);
+        defaultNFA = new NFA();
+        defaultNFA.setAlphabet(alphabet);
+        defaultNFA.setStart(state1);
+        defaultNFA.setTerminatedStates(terminatedStates);
+        defaultNFA.setStates(allStates);
     }
 
     @After
@@ -103,17 +107,17 @@ public class DFA_HandlerTest {
     }
 
     /**
-     * Method: getFromNFA(NFA nfa)
+     * Method: getFromNFA(NFA defaultNFA)
      */
     @Test
     public void testGetFromNFA1() throws Exception {
         DFA_Handler dfaHandler = new DFA_Handler();
-        dfaHandler.getFromNFA(nfa);
+        dfaHandler.getFromNFA(defaultNFA);
 
     }
 
     /**
-     * Method: getFromNFA(NFA nfa)
+     * Method: getFromNFA(NFA defaultNFA)
      */
     @Test
     public void testGetFromNFA2() throws Exception {
@@ -121,20 +125,21 @@ public class DFA_HandlerTest {
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();
 
-        String re = "(a|b)*a(a|b)";
+//        String re = "((ε|a)b*)*";
+        String re = "(a|b)*abb(a|b)*";
         re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-        System.out.println("---------------- " + re + " ----------------");
+        logger.debug("---------------- " + re + " ----------------");
 
-        NFA finalNFA = nfaHandler.getFromRE(re);
-        System.out.println("*************** finish convert " + re + " to NFA ***************");
+        NFA finalNFA = nfaHandler.getFromRE(re, null);
+        logger.debug("*************** finish convert " + re + " to NFA ***************");
 
         // 转化为 DFA
         DFA dfa = dfaHandler.getFromNFA(finalNFA);
-        System.out.println("all states size: " + dfa.getStates().size());
+        logger.debug("all states size: " + dfa.getStates().size());
     }
 
     /**
-     * Method: getFromNFA(NFA nfa)
+     * Method: getFromNFA(NFA defaultNFA)
      */
     @Test
     public void testGetFromNFA3() throws Exception {
@@ -149,31 +154,54 @@ public class DFA_HandlerTest {
         for (String re : res) {
             try {
                 re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
-                System.out.println("---------------- " + re + " ----------------");
+                logger.debug("-------------- " + re + " --------------");
             } catch (UnexpectedRegularExprRuleException e) {
                 e.printStackTrace();
             }
 
-            NFA nfa = nfaHandler.getFromRE(re);
+            NFA nfa = nfaHandler.getFromRE(re, null);
             convertedNFA.push(nfa);
-            System.out.println("*************** finish convert " + re + " to NFA ***************");
+            logger.debug("************** finish convert " + re + " to NFA **************");
         }
 
         NFA finalNFA = nfaHandler.combine(convertedNFA);
-        System.out.println("-------------- combine all NFA to ONE --------------");
+        logger.debug("-------------- combine all NFA to ONE --------------");
 
         // 转化为 DFA
         DFA dfa = dfaHandler.getFromNFA(finalNFA);
-        System.out.println("all states size: " + dfa.getStates().size());
+        logger.debug("all states size: " + dfa.getStates().size());
     }
 
     /**
-     * Method: optimize(DFA nfa)
+     * Method: optimize(DFA defaultNFA)
      */
     @Test
-    public void testOptimize() throws Exception {
+    public void testOptimize1() throws Exception {
         DFA_Handler dfaHandler = new DFA_Handler();
-        dfaHandler.optimize(dfaHandler.getFromNFA(nfa));
+        dfaHandler.optimize(dfaHandler.getFromNFA(defaultNFA));
+    }
+
+    /**
+     * Method: optimize(DFA defaultNFA)
+     */
+    @Test
+    public void testOptimize2() throws Exception {
+        RegularExpressionHandler rgHandler = new RegularExpressionHandler();
+        NFA_Handler nfaHandler = new NFA_Handler();
+        DFA_Handler dfaHandler = new DFA_Handler();
+
+        String re = "(a|b)*abb(a|b)*";
+        re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
+        NFA finalNFA = nfaHandler.getFromRE(re, null);
+        DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(finalNFA));
+
+        logger.info("优化后的 DFA 转换表");
+        for (Map.Entry<FA_State, Map<Character, FA_State>> entryState : dfa.getMove().entrySet()) {
+            FA_State start = entryState.getKey();
+            for (Map.Entry<Character, FA_State> entryEdge : entryState.getValue().entrySet()) {
+                logger.info(start.getStateID() + " through " + entryEdge.getKey() + " to " + entryEdge.getValue().getStateID());
+            }
+        }
     }
 
 
@@ -186,7 +214,7 @@ public class DFA_HandlerTest {
 
         Method method = DFA_Handler.class.getDeclaredMethod("closure", FA_State.class);
         method.setAccessible(true);
-        method.invoke(dfaHandler, nfa.getStart());
+        method.invoke(dfaHandler, defaultNFA.getStart());
 
         // 需比对的答案
         // state: closure
@@ -196,7 +224,7 @@ public class DFA_HandlerTest {
         // 4: 4, 5, 9
         // 7: 7
 //        for (FA_State temp : result) {
-//            System.out.println(temp.getStateID());
+//            logger.debug(temp.getStateID());
 //        }
     }
 

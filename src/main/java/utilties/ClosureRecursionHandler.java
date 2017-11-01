@@ -1,6 +1,7 @@
 package utilties;
 
 import finiteAutomata.entity.FA_State;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
@@ -10,6 +11,8 @@ import java.util.List;
  * 解决递归 closure 时循环处理的问题
  */
 public class ClosureRecursionHandler {
+
+    private static Logger logger = Logger.getLogger(ClosureRecursionHandler.class);
 
     private static List<FA_State> states = new FA_StatesList();
     private static FA_StateComparator comparator = new FA_StateComparator();
@@ -22,7 +25,7 @@ public class ClosureRecursionHandler {
      */
     public static void reset() {
         states = new FA_StatesList();
-        System.out.println("Already reset the ClosureRecursionHandler");
+        logger.debug("Already reset the ClosureRecursionHandler");
     }
 
     /**
@@ -45,7 +48,8 @@ public class ClosureRecursionHandler {
      * 检测 states 中是否含有参数 state
      */
     public static boolean contain(FA_State state) {
-        System.out.println("State " + state.getStateID() + " is contained: " + states.contains(state));
-        return states.contains(state);
+        boolean result = states.contains(state);
+        logger.debug("State " + state.getStateID() + " is contained: " + result);
+        return result;
     }
 }
