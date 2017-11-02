@@ -414,6 +414,18 @@ public class DFA_Handler {
         List<FA_State> needDeleteStates = new FA_StatesList(deleteTran.keySet());
         needDeleteStates.sort(comparator);
 
+        // 把pattern合并，无交集并集
+        for (FA_State deleteState : needDeleteStates) {
+            Map<FA_State, List<String>> map = DFA_StatePatternMappingController.getMap();
+            List<String> coveredPatterns = map.get(deleteState);
+            map.remove(deleteState);
+
+            List<String> pre = map.get(deleteTran.get(deleteState));
+            pre.removeAll(coveredPatterns);
+            pre.addAll(coveredPatterns);
+        }
+
+
         // 转移链接关系
         // 需移除节点 指向 其他节点
         for (FA_State state : needDeleteStates) {

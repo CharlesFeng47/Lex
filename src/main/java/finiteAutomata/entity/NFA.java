@@ -7,10 +7,4 @@ package finiteAutomata.entity;
  */
 public class NFA extends FA {
 
-    @Override
-    public boolean isValid(String s) {
-        FA_State start = getStart();
-
-        return false;
-    }
 }

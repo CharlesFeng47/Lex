@@ -40,7 +40,7 @@ public class FA_ControllerTest {
 //        res.add("(a*|b*)*");
 //        res.add("((ε|a)b*)*");
 //        res.add("(a|b)*abb(a|b)*");
-        res.add("aba?a+abb+cc");
+//        res.add("aba?a+abb+cc");
 
         List<String> patterns = new LinkedList<>();
         patterns.add("ID");
@@ -52,7 +52,7 @@ public class FA_ControllerTest {
         patterns.add("F");
 
         controller.lexicalAnalysis(res, patterns);
-        NFA_StatePatternMappingController.getMap();
+//        NFA_StatePatternMappingController.getMap();
         DFA_StatePatternMappingController.getMap();
 
     }
