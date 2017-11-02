@@ -7,7 +7,7 @@ import java.util.List;
  * <p>
  * 表示有穷自动机
  */
-public class FA {
+public abstract class FA {
 
     /**
      * 开始状态
@@ -65,8 +65,6 @@ public class FA {
      * @param s 要检查的词素
      * @return 词素是否合法
      */
-    public boolean isValid(String s) {
-        return true;
-    }
+    public abstract boolean isValid(String s);
 
 }

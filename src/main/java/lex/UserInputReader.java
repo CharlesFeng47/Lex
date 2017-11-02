@@ -15,6 +15,7 @@ public class UserInputReader {
         StringBuilder sb = new StringBuilder();
         String line;
         while (!(line = sc.nextLine()).equals("###")) {
+            line = line.trim();
             sb.append(line + " ");
         }
 

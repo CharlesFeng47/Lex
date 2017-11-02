@@ -23,4 +23,9 @@ public class DFA extends FA {
     public void setMove(Map<FA_State, Map<Character, FA_State>> move) {
         this.move = move;
     }
+
+    @Override
+    public boolean isValid(String s) {
+        return false;
+    }
 }

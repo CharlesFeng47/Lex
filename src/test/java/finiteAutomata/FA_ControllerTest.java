@@ -3,6 +3,8 @@ package finiteAutomata;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import utilties.DFA_StatePatternMappingController;
+import utilties.NFA_StatePatternMappingController;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,19 +39,21 @@ public class FA_ControllerTest {
 //        res.add("(a|b)*");
 //        res.add("(a*|b*)*");
 //        res.add("((ε|a)b*)*");
-        res.add("(a|b)*abb(a|b)*");
+//        res.add("(a|b)*abb(a|b)*");
         res.add("aba?a+abb+cc");
 
         List<String> patterns = new LinkedList<>();
         patterns.add("ID");
-        patterns.add("ID");
-        patterns.add("ID");
-        patterns.add("ID");
-        patterns.add("ID");
-        patterns.add("ID");
-        patterns.add("ID");
+        patterns.add("A");
+        patterns.add("B");
+        patterns.add("C");
+        patterns.add("D");
+        patterns.add("E");
+        patterns.add("F");
 
         controller.lexicalAnalysis(res, patterns);
+        NFA_StatePatternMappingController.getMap();
+        DFA_StatePatternMappingController.getMap();
 
     }
 

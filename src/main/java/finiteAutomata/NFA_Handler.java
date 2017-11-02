@@ -3,10 +3,14 @@ package finiteAutomata;
 import finiteAutomata.entity.FA_Edge;
 import finiteAutomata.entity.FA_State;
 import finiteAutomata.entity.NFA;
+import utilties.FA_StateComparator;
 import utilties.FA_StateIDController;
 import utilties.FA_StatesList;
+import utilties.NFA_StatePatternMappingController;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by cuihua on 2017/10/27.
@@ -17,21 +21,10 @@ import java.util.*;
  */
 public class NFA_Handler {
 
-    /**
-     * 映射 NFA 与其对应的模式 PatternType
-     */
-    private Map<FA_State, String> nfaPatternMatchingMap;
-
-    public NFA_Handler() {
-        nfaPatternMatchingMap = new HashMap<>();
-    }
-
-    public Map<FA_State, String> getNfaPatternMatchingMap() {
-        return nfaPatternMatchingMap;
-    }
+    private static FA_StateComparator comparator = new FA_StateComparator();
 
     /**
-     * @param re      标准化的正则定义后缀表达式
+     * @param re          标准化的正则定义后缀表达式
      * @param patternType 此正则定义对应的模式 patternType
      * @return 此正则定义对应的NFA
      */
@@ -58,7 +51,7 @@ public class NFA_Handler {
 
         // 映射 NFA 与其对应的模式 pattern
         NFA result = handling.get(0);
-        nfaPatternMatchingMap.put(result.getTerminatedStates().get(0), patternType);
+        NFA_StatePatternMappingController.add(result.getTerminatedStates().get(0), patternType);
 
         // 最终栈中剩下的唯一NFA即为所求
         return result;
@@ -284,11 +277,13 @@ public class NFA_Handler {
         List<FA_State> terminatedStates = new FA_StatesList();
         terminatedStates.addAll(nfa1.getTerminatedStates());
         terminatedStates.addAll(nfa2.getTerminatedStates());
+        terminatedStates.sort(comparator);
 
         List<FA_State> states = new FA_StatesList();
         states.addAll(nfa1.getStates());
         states.addAll(nfa2.getStates());
         states.add(newStart);
+        states.sort(comparator);
 
         NFA newNFA = new NFA();
         newNFA.setStart(newStart);

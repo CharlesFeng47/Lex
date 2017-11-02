@@ -2,6 +2,8 @@ package utilties;
 
 /**
  * Created by cuihua on 2017/10/26.
+ *
+ * 统一控制 FA_State 的序号
  */
 public class FA_StateIDController {
 

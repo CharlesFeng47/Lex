@@ -19,16 +19,7 @@ public class DFA_Handler {
 
     private static FA_StateComparator comparator = new FA_StateComparator();
 
-    /**
-     * 映射 DFA 与其对应的模式 PatternType
-     */
-    private Map<FA_State, List<String>> dfaPatternMatchingMap;
-
     public DFA_Handler() {
-    }
-
-    public Map<FA_State, List<String>> getDfaPatternMatchingMap() {
-        return dfaPatternMatchingMap;
     }
 
     /**
@@ -118,15 +109,20 @@ public class DFA_Handler {
         // dStates 顺序压入，重新更换为简单 FA_State 也是顺序
         int curIndex = 0;
         for (List<FA_State> nowConvertedNFAStates : dStates.keySet()) {
-            FA_State state = new FA_State(curIndex);
-            curStates.add(state);
+            FA_State EquivalentState = new FA_State(curIndex);
+            curStates.add(EquivalentState);
             curIndex++;
 
-            faStatesConvertTable.put(nowConvertedNFAStates, state);
+            faStatesConvertTable.put(nowConvertedNFAStates, EquivalentState);
 
-            // 含有原NFA终止态的即为现终止态
-            if (isTerminatedState(preTerminatedStates, nowConvertedNFAStates)) {
-                curTerminatedStates.add(state);
+            // 原 NFA 终止态与现在转换后的 StateList 有交集的即为现终止态，而这种交集也反映在与 State 一一对应的模式上
+            List<String> equivalentStatePatterns = getEquivalentStatePatterns(preTerminatedStates, nowConvertedNFAStates);
+            if (equivalentStatePatterns != null) {
+                curTerminatedStates.add(EquivalentState);
+
+                // 将原NFA终止态对应的模式 pattern 加入现在的映射
+                DFA_StatePatternMappingController.add(EquivalentState, equivalentStatePatterns);
+
             }
         }
 
@@ -228,14 +224,25 @@ public class DFA_Handler {
      * 判断toTest是否与pre有交集
      * 有交集，现等价状态即为现DFA的终止态
      */
-    private boolean isTerminatedState(final List<FA_State> pre, final List<FA_State> toTest) {
+    private List<String> getEquivalentStatePatterns(final List<FA_State> preTerminals, final List<FA_State> toTest) {
         // 取交集无并集
         // 深度拷贝复制 toTest，保证 retainAll 之后 toTest 不会被修改
         List<FA_State> newList = new FA_StatesList();
         newList.addAll(toTest);
-        newList.retainAll(pre);
+        newList.retainAll(preTerminals);
 
-        return newList.size() != 0;
+        if (newList.size() == 0) {
+            // 不含终止态，直接返回 null
+            return null;
+        } else {
+            List<String> result = new LinkedList<>();
+            for (FA_State coveredTerminal : newList) {
+                String pattern = NFA_StatePatternMappingController.getMap().get(coveredTerminal);
+                result.add(pattern);
+            }
+            return result;
+        }
+
     }
 
 
