@@ -7,4 +7,11 @@ package finiteAutomata.entity;
  */
 public class NFA extends FA {
 
+    /**
+     * TODO 因为没有使用 NFA 来校验词素，所以等需要的时候再来实现
+     */
+    @Override
+    public boolean isValid(String lexeme) {
+        return false;
+    }
 }

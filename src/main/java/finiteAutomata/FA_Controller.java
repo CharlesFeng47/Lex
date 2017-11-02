@@ -18,7 +18,6 @@ public class FA_Controller {
     private static final Logger logger = Logger.getLogger(FA_Controller.class);
 
     public DFA lexicalAnalysis(List<String> res, List<String> patternType) {
-
         RegularExpressionHandler rgHandler = new RegularExpressionHandler();
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();

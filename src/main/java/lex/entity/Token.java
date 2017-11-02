@@ -17,6 +17,11 @@ public class Token {
      */
     private String attribute;
 
+    public Token(String patternType, String attribute) {
+        this.patternType = patternType;
+        this.attribute = attribute;
+    }
+
     public String getPatternType() {
         return patternType;
     }

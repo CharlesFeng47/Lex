@@ -29,7 +29,7 @@ public class LexInputReader {
 
         List<String> reContent = new LinkedList<>();
         while (sc.hasNext()) {
-            reContent.add(sc.next());
+            reContent.add(sc.nextLine());
         }
         return reContent;
     }

@@ -61,4 +61,10 @@ public abstract class FA {
         this.alphabet = alphabet;
     }
 
+    /**
+     * @param lexeme 要检查的词素
+     * @return 词素是否合法
+     */
+    public abstract boolean isValid(String lexeme);
+
 }

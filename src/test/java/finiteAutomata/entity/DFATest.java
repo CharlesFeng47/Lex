@@ -1,5 +1,6 @@
 package finiteAutomata.entity;
 
+import exceptions.NotMatchingException;
 import finiteAutomata.FA_Controller;
 import org.junit.After;
 import org.junit.Assert;
@@ -30,7 +31,7 @@ public class DFATest {
      * Method: isValid(String s)
      */
     @Test
-    public void testIsValid() throws Exception {
+    public void testIsValid1() throws Exception {
         List<String> res = new LinkedList<>();
         res.add("aa+");
 
@@ -40,7 +41,6 @@ public class DFATest {
         FA_Controller controller = new FA_Controller();
         DFA dfa = controller.lexicalAnalysis(res, patterns);
 
-        Assert.assertEquals(null, dfa.getEndingPatterns("a"));
         Assert.assertEquals(patterns, dfa.getEndingPatterns("aa"));
         Assert.assertEquals(patterns, dfa.getEndingPatterns("aaa"));
     }
@@ -68,12 +68,47 @@ public class DFATest {
         List<String> result2 = new LinkedList<>();
         result2.add("A");
 
-        Assert.assertEquals(null, dfa.getEndingPatterns("a"));
         Assert.assertEquals(result1, dfa.getEndingPatterns("aa"));
         Assert.assertEquals(result1, dfa.getEndingPatterns("aaa"));
         Assert.assertEquals(result2, dfa.getEndingPatterns("b"));
         Assert.assertEquals(result2, dfa.getEndingPatterns("bb"));
         Assert.assertEquals(result2, dfa.getEndingPatterns("bbb"));
+    }
+
+    /**
+     * Method: isValid(String s)
+     */
+    @Test(expected = NotMatchingException.class)
+    public void testIsValid3() throws Exception {
+        List<String> res = new LinkedList<>();
+        res.add("aa+");
+
+
+        List<String> patterns = new LinkedList<>();
+        patterns.add("ID");
+
+        FA_Controller controller = new FA_Controller();
+        DFA dfa = controller.lexicalAnalysis(res, patterns);
+
+        dfa.getEndingPatterns("a");
+    }
+
+    /**
+     * Method: isValid(String s)
+     */
+    @Test(expected = NotMatchingException.class)
+    public void testIsValid4() throws Exception {
+        List<String> res = new LinkedList<>();
+        res.add("aa+");
+
+
+        List<String> patterns = new LinkedList<>();
+        patterns.add("ID");
+
+        FA_Controller controller = new FA_Controller();
+        DFA dfa = controller.lexicalAnalysis(res, patterns);
+
+        dfa.getEndingPatterns("b");
     }
 
 }
