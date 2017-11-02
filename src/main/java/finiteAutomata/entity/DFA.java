@@ -46,13 +46,13 @@ public class DFA extends FA {
                 }
             }
 
-            if (!canFind) throw new NotMatchingException();
+            if (!canFind) throw new NotMatchingException(lexeme);
         }
 
         // 字符串结束后在终止态即为合法的结束
         boolean isValid = getTerminatedStates().contains(curState);
         if (isValid) return DFA_StatePatternMappingController.getMap().get(curState);
-        else throw new NotMatchingException();
+        else throw new NotMatchingException(lexeme);
     }
 
     @Override

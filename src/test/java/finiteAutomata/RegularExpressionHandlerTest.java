@@ -39,6 +39,7 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.standardizeRE("(a*|b*)*") + "\n");
         logger.debug(re.standardizeRE("((ε|a)b*)*") + "\n");
         logger.debug(re.standardizeRE("(a|b)*abb(a|b)*") + "\n");
+        logger.debug(re.standardizeRE(",|;") + "\n");
 
     }
 
@@ -53,6 +54,7 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.convertInfixToPostfix("((ε|a)·b*)*") + "\n");
         logger.debug(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*") + "\n");
         logger.debug(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c") + "\n");
+        logger.debug(re.convertInfixToPostfix(",|;") + "\n");
 
         /*
         ab|*a·b·b·ab|*·

@@ -414,15 +414,17 @@ public class DFA_Handler {
         List<FA_State> needDeleteStates = new FA_StatesList(deleteTran.keySet());
         needDeleteStates.sort(comparator);
 
-        // 把pattern合并，无交集并集
+        // 把终止态的 pattern 合并，无交集并集
         for (FA_State deleteState : needDeleteStates) {
-            Map<FA_State, List<String>> map = DFA_StatePatternMappingController.getMap();
-            List<String> coveredPatterns = map.get(deleteState);
-            map.remove(deleteState);
+            if (dfa.getTerminatedStates().contains(deleteState)) {
+                Map<FA_State, List<String>> map = DFA_StatePatternMappingController.getMap();
+                List<String> coveredPatterns = map.get(deleteState);
+                map.remove(deleteState);
 
-            List<String> pre = map.get(deleteTran.get(deleteState));
-            pre.removeAll(coveredPatterns);
-            pre.addAll(coveredPatterns);
+                List<String> pre = map.get(deleteTran.get(deleteState));
+                pre.removeAll(coveredPatterns);
+                pre.addAll(coveredPatterns);
+            }
         }
 
 

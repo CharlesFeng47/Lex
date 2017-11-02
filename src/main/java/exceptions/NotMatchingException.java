@@ -6,8 +6,18 @@ package exceptions;
  * 用户要分析的字符串和 .l 正则定义不匹配
  */
 public class NotMatchingException extends Exception {
+
+    /**
+     * 不合法的词素
+     */
+    private String lexeme;
+
+    public NotMatchingException(String lexeme) {
+        this.lexeme = lexeme;
+    }
+
     @Override
     public String getMessage() {
-        return "DFA 中无匹配状态";
+        return "DFA 中对词素" + lexeme +  "无匹配状态";
     }
 }

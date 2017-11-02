@@ -8,6 +8,9 @@ package exceptions;
  */
 public class UnexpectedRegularExprRuleException extends Exception {
 
+    /**
+     * 不合理的正则定义
+     */
     private String re;
 
     public UnexpectedRegularExprRuleException(String re) {
