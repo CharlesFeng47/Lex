@@ -51,14 +51,16 @@ public class RegularExpressionHandler {
 
     /**
      * 默认re不含有连接符
-     * 将 +、? 用基本符号代替
+     * 将 +、?、{} 用基本符号代替
      * 添加省略的连接符'·'（对所有操作符画出所有的可能情况）
-     * TODO 增加对 {m, n} 的实现
      *
      * @param re 输入的正则表达式
      * @return 标准的没有扩展语法如[], +, ?
      */
-    public String standardizeRE(final String re) throws UnexpectedRegularExprRuleException {
+    public String standardizeRE(String re) throws UnexpectedRegularExprRuleException {
+        // 替换所有空格，便于控制
+        re = re.replace(" ", "");
+
         // 替换扩展符号，result存储替换后的字符串，differ表示替换前后的对当前处理字符的Index差
         StringBuffer result = new StringBuffer().append(re);
         int differ = 0;
@@ -72,6 +74,11 @@ public class RegularExpressionHandler {
             if (c == '+') {
                 int preLength = result.length();
                 result = standardizeExtendedMark(result, i + differ, ExtendedMark.PLUS_MARK);
+                differ += result.length() - preLength;
+            }
+            if (c == '{') {
+                int preLength = result.length();
+                result = standardizeExtendedMark(result, i + differ, ExtendedMark.BRACE_MARK);
                 differ += result.length() - preLength;
             }
         }
@@ -128,9 +135,53 @@ public class RegularExpressionHandler {
 
         if (mark == ExtendedMark.QUESTION_MARK) result.append("(ε|").append(content).append(')');
         else if (mark == ExtendedMark.PLUS_MARK) result.append(content).append(content).append('*');
+        else if (mark == ExtendedMark.BRACE_MARK) {
+            // 大括号里面的内容
+            String sub = re.substring(markIndex + 1);
+            int braceEndIndex = sub.indexOf("}");
+            int commaIndex = sub.indexOf(",");
 
-        // 如果 ? 不是最后一个字符，加上后续字符
-        if (markIndex != re.length() - 1) result.append(re.substring(markIndex + 1));
+            if (commaIndex == -1) {
+                // {n} 类型。没有逗号，只有数字，重复数字遍即可
+                int times = Integer.parseInt(sub.substring(0, braceEndIndex));
+                for (int i = 0; i < times; i++) {
+                    result.append(content);
+                }
+            } else {
+                if (commaIndex == 0) {
+                    // {, n} 类型，重复0-n遍
+                    int times = Integer.parseInt(sub.substring(1, braceEndIndex));
+                    for (int i = 0; i < times; i++) {
+                        result.append("(ε|").append(content).append(')');
+                    }
+                } else if (commaIndex == braceEndIndex - 1) {
+                    // {n, } 类型，重复最少n遍
+                    int times = Integer.parseInt(sub.substring(0, commaIndex));
+                    for (int i = 0; i < times; i++) {
+                        result.append(content);
+                    }
+                    result.append(content).append("*");
+                } else {
+                    // {m, n} 类型，最少m遍，最多n遍
+                    int mTimes = Integer.parseInt(sub.substring(0, commaIndex));
+                    int nTimes = Integer.parseInt(sub.substring(commaIndex + 1, braceEndIndex));
+                    for (int i = 0; i < mTimes; i++) {
+                        result.append(content);
+                    }
+                    for (int i = mTimes; i < nTimes; i++) {
+                        result.append("(ε|").append(content).append(')');
+                    }
+                }
+            }
+
+            // 如果 {} 不是最后一个字符，加上后续字符
+            if (braceEndIndex != re.length() - 1) result.append(sub.substring(braceEndIndex + 1));
+        }
+
+        if (mark == ExtendedMark.QUESTION_MARK | mark == ExtendedMark.PLUS_MARK) {
+            // 如果 +/? 不是最后一个字符，加上后续字符
+            if (markIndex != re.length() - 1) result.append(re.substring(markIndex + 1));
+        }
         logger.debug(result);
         return result;
     }

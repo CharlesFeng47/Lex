@@ -39,8 +39,14 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.standardizeRE("(a*|b*)*") + "\n");
         logger.debug(re.standardizeRE("((ε|a)b*)*") + "\n");
         logger.debug(re.standardizeRE("(a|b)*abb(a|b)*") + "\n");
-        logger.debug(re.standardizeRE(",|;") + "\n");
 
+        logger.debug(re.standardizeRE("cc(ab){2, 3}aaa") + "\n");
+        logger.debug(re.standardizeRE("cc{2, }aaa") + "\n");
+        logger.debug(re.standardizeRE("cc(ab){, 3}aaa") + "\n");
+        logger.debug(re.standardizeRE("cc{2}aaa") + "\n");
+        logger.debug(re.standardizeRE("cc{, 3}aaa") + "\n");
+
+        logger.debug(re.standardizeRE("c·(ε|c)·(ε|c){1,  2}aa·a") + "\n");
     }
 
     /**
@@ -54,7 +60,15 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.convertInfixToPostfix("((ε|a)·b*)*") + "\n");
         logger.debug(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*") + "\n");
         logger.debug(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c") + "\n");
-        logger.debug(re.convertInfixToPostfix(",|;") + "\n");
+
+        logger.debug(re.convertInfixToPostfix("c·c·(a·b)·(a·b)·(ε|(a·b))·a·a·a") + "\n");
+        logger.debug(re.convertInfixToPostfix("c·c·c·c*·a·a·a") + "\n");
+        logger.debug(re.convertInfixToPostfix("c·c·(ε|(a·b))·(ε|(a·b))·(ε|(a·b))·a·a·a") + "\n");
+        logger.debug(re.convertInfixToPostfix(" c·c·c·a·a·a") + "\n");
+        logger.debug(re.convertInfixToPostfix("c·(ε|c)·(ε|c)·(ε|c)·a·a·a") + "\n");
+
+        // TODO 只支持数字字母
+//        logger.debug(re.convertInfixToPostfix(",|;") + "\n");
 
         /*
         ab|*a·b·b·ab|*·
@@ -81,6 +95,35 @@ public class RegularExpressionHandlerTest {
         "cc(ab)?a", 6, ExtendedMark.QUESTION_MARK: cc(ε|(ab))a
         "aba+a", 3, ExtendedMark.PLUS_MARK: abaa*a
         "cc(ab)+aaa", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)*aaa
+         */
+    }
+
+    @Test
+    public void testStandardizeExtendedMark2() throws Exception {
+        RegularExpressionHandler regularExpressionHandler = new RegularExpressionHandler();
+
+        Method method = RegularExpressionHandler.class.getDeclaredMethod("standardizeExtendedMark", StringBuffer.class, int.class, ExtendedMark.class);
+        method.setAccessible(true);
+
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("cc(ab){,3}aaa");
+
+        method.invoke(regularExpressionHandler, stringBuffer, 6, ExtendedMark.BRACE_MARK);
+
+        /*
+        检测：
+        "cc(ab){2,3}aaa", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)(ε|(ab))aaa
+        "cc{2, 3}aaa", 2, ExtendedMark.PLUS_MARK: ccc(ε|c)aaa
+
+        "cc(ab){2}aaa", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)aaa
+        "cc{2}aaa", 2, ExtendedMark.PLUS_MARK: cccaaa
+
+        "cc(ab){2,}aaa", 6, ExtendedMark.PLUS_MARK: cc(ab)(ab)(ab)*aaa
+        "cc{2,}aaa", 2, ExtendedMark.PLUS_MARK: cccc*aaa
+
+        "cc(ab){,3}aaa", 6, ExtendedMark.PLUS_MARK: cc(ε|(ab))(ε|(ab))(ε|(ab))aaa
+        "cc{,3}aaa", 2, ExtendedMark.PLUS_MARK: c(ε|c)(ε|c)(ε|c)aaa
+
          */
     }
 
