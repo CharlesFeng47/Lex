@@ -60,12 +60,15 @@ public class DFA extends FA {
         FA_State curState = getStart();
 
         for (char c : lexeme.toCharArray()) {
+            boolean canFind = false;
             for (FA_Edge curEdge : curState.getFollows()) {
                 if (curEdge.getLabel() == c) {
                     curState = curEdge.getPointTo();
+                    canFind = true;
                     break;
                 }
             }
+            if (!canFind) return false;
         }
         return getTerminatedStates().contains(curState);
     }
