@@ -135,6 +135,7 @@ public class RegularExpressionHandler {
 
             // 合法情况下含有连接符号的都不需要处理
             if (before == '·' || after == '·') {
+                curCharIsTransferred = false;
                 continue;
             }
 
@@ -166,8 +167,15 @@ public class RegularExpressionHandler {
             content = re.substring(contentStartIndex, markIndex);
         } else {
             // 核直接是前面的单个字符
-            contentStartIndex = markIndex - 1;
-            content = String.valueOf(re.charAt(markIndex - 1));
+            if (markIndex >= 2 && re.charAt(markIndex - 2) == '\\') {
+                // 核为转义字符
+                contentStartIndex = markIndex - 2;
+                content = re.substring(contentStartIndex, markIndex);
+            } else {
+                // 核为普通单个字符
+                contentStartIndex = markIndex - 1;
+                content = String.valueOf(re.charAt(markIndex - 1));
+            }
         }
 
         result.append(re.substring(0, contentStartIndex));
@@ -385,7 +393,7 @@ public class RegularExpressionHandler {
      */
     private boolean isOperand(char c) {
         return (c == '·' || c == '|' || c == '*' || c == '(' || c == ')' || c == '+' || c == '?' || c == '{' || c == '}'
-                || c == '[' || c == ']' || c == '-');
+                || c == '[' || c == ']' || c == '-') || c == ',';
     }
 
 
@@ -395,23 +403,27 @@ public class RegularExpressionHandler {
      */
     public String convertInfixToPostfix(String re) {
         // 存储结果的后缀字符串
-        StringBuffer sb = new StringBuffer(re.length());
+        StringBuilder sb = new StringBuilder(re.length());
 
         // 操作符的栈
         Stack<Character> operandStack = new Stack<>();
 
+        // 判断当前字符是否是转义字符
+        boolean curCharIsTransferred = false;
         for (int i = 0; i < re.length(); i++) {
             char c = re.charAt(i);
 
             // 转义的操作符
             if (c == '\\') {
-                sb.append(re.charAt(++i));
+                sb.append(c);
+                curCharIsTransferred = true;
                 continue;
             }
 
-            // 非操作符 TODO
-            if (isValidChar(false, c)) {
+            // 非操作符
+            if (isValidChar(curCharIsTransferred, c)) {
                 sb.append(c);
+                curCharIsTransferred = false;
                 continue;
             }
 

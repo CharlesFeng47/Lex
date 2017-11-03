@@ -3,6 +3,7 @@ package finiteAutomata;
 import exceptions.UnexpectedRegularExprRuleException;
 import org.apache.log4j.Logger;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import utilties.ExtendedMark;
@@ -34,26 +35,28 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testStandardizeRE() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        logger.debug(re.standardizeRE("a+") + "\n");
-        logger.debug(re.standardizeRE("aba?a+abb+cc") + "\n");
-        logger.debug(re.standardizeRE("(a|b)+") + "\n");
-        logger.debug(re.standardizeRE("(a*|b*)*") + "\n");
-        logger.debug(re.standardizeRE("((ε|a)b*)*") + "\n");
-        logger.debug(re.standardizeRE("(a|b)*abb(a|b)*") + "\n");
+        Assert.assertEquals("a·a*", re.standardizeRE("a+"));
+        Assert.assertEquals("a·b·(ε|a)·a·a*·a·b·b·b*·c·c", re.standardizeRE("aba?a+abb+cc"));
+        Assert.assertEquals("(a|b)·(a|b)*", re.standardizeRE("(a|b)+"));
+        Assert.assertEquals("(a*|b*)*", re.standardizeRE("(a*|b*)*"));
+        Assert.assertEquals("((ε|a)·b*)*", re.standardizeRE("((ε|a)b*)*"));
+        Assert.assertEquals("(a|b)*·a·b·b·(a|b)*", re.standardizeRE("(a|b)*abb(a|b)*"));
 
-        logger.debug(re.standardizeRE("cc(ab){2, 3}aaa") + "\n");
-        logger.debug(re.standardizeRE("cc{2, }aaa") + "\n");
-        logger.debug(re.standardizeRE("cc(ab){, 3}aaa") + "\n");
-        logger.debug(re.standardizeRE("cc{2}aaa") + "\n");
-        logger.debug(re.standardizeRE("cc{, 3}aaa") + "\n");
+        Assert.assertEquals("c·c·(a·b)·(a·b)·(ε|(a·b))·a·a·a", re.standardizeRE("cc(ab){2, 3}aaa"));
+        Assert.assertEquals("c·c·c·c*·a·a·a", re.standardizeRE("cc{2, }aaa"));
+        Assert.assertEquals("c·c·(ε|(a·b))·(ε|(a·b))·(ε|(a·b))·a·a·a", re.standardizeRE("cc(ab){, 3}aaa"));
+        Assert.assertEquals("c·c·c·a·a·a", re.standardizeRE("cc{2}aaa"));
+        Assert.assertEquals("c·(ε|c)·(ε|c)·(ε|c)·a·a·a", re.standardizeRE("cc{, 3}aaa"));
 
-        logger.debug(re.standardizeRE("c·(ε|c)·(ε|c){1,  2}aa·a") + "\n");
-        logger.debug(re.standardizeRE("ca{0,3}·(ε|c){1,  2}aa·a") + "\n");
-        logger.debug(re.standardizeRE("cc(ab)[0-9a-z]?aaa") + "\n");
-        logger.debug(re.standardizeRE("cc(ab)[0-9a-z]+aaa") + "\n");
-        logger.debug(re.standardizeRE("cc(ab|(cd)*){2,3}aaa") + "\n");
-        logger.debug(re.standardizeRE("cc(ab)[abc]aaa") + "\n");
-        logger.debug(re.standardizeRE("cc(ab)[abc-fxy]aaa") + "\n");
+        Assert.assertEquals("c·(ε|c)·(ε|c)·(ε|(ε|c))·a·a·a", re.standardizeRE("c·(ε|c)·(ε|c){1,  2}aa·a"));
+        Assert.assertEquals("c·(ε|a)·(ε|a)·(ε|a)·(ε|c)·(ε|(ε|c))·a·a·a", re.standardizeRE("ca{0,3}·(ε|c){1,  2}aa·a"));
+        Assert.assertEquals("c·c·(a·b)·(ε|((0|1|2|3|4|5|6|7|8|9)|(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)))·a·a·a",
+                re.standardizeRE("cc(ab)[0-9a-z]?aaa"));
+        Assert.assertEquals("c·c·(a·b)·((0|1|2|3|4|5|6|7|8|9)|(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z))·((0|1|2|3|4|5|6|7|8|9)|(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z))*·a·a·a",
+                re.standardizeRE("cc(ab)[0-9a-z]+aaa"));
+        Assert.assertEquals("c·c·(a·b|(c·d)*)·(a·b|(c·d)*)·(ε|(a·b|(c·d)*))·a·a·a", re.standardizeRE("cc(ab|(cd)*){2,3}aaa"));
+        Assert.assertEquals("c·c·(a·b)·(a|b|c)·a·a·a", re.standardizeRE("cc(ab)[abc]aaa"));
+        Assert.assertEquals("c·c·(a·b)·(a|b|(c|d|e|f)|x|y)·a·a·a", re.standardizeRE("cc(ab)[abc-fxy]aaa"));
     }
 
     /**
@@ -63,7 +66,7 @@ public class RegularExpressionHandlerTest {
     public void testStandardizeRE2() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
 //        logger.debug(re.standardizeRE("aa(*)") + "\n");
-        logger.debug(re.standardizeRE("aa[") + "\n");
+        re.standardizeRE("aa[");
     }
 
     /**
@@ -72,14 +75,20 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testStandardizeRE3() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-//        logger.debug(re.standardizeRE("aa\\|") + "\n");
-//        logger.debug(re.standardizeRE("aa\\{") + "\n");
-        logger.debug(re.standardizeRE("aa\\{\\}") + "\n");
-        logger.debug(re.standardizeRE("aa\\+") + "\n");
-        logger.debug(re.standardizeRE("aa\\?") + "\n");
-        logger.debug(re.standardizeRE("aa\\[") + "\n");
-        logger.debug(re.standardizeRE("aa\\[\\]") + "\n");
-        logger.debug(re.standardizeRE("aa\\-") + "\n");
+
+        Assert.assertEquals("a·a·\\|", re.standardizeRE("aa\\|"));
+        Assert.assertEquals("a·a·\\{", re.standardizeRE("aa\\{"));
+        Assert.assertEquals("a·a·\\{·\\}", re.standardizeRE("aa\\{\\}"));
+        Assert.assertEquals("a·a·\\+", re.standardizeRE("aa\\+"));
+        Assert.assertEquals("a·a·\\?", re.standardizeRE("aa\\?"));
+        Assert.assertEquals("a·a·\\[", re.standardizeRE("aa\\["));
+        Assert.assertEquals("a·a·\\[·\\]", re.standardizeRE("aa\\[\\]"));
+        Assert.assertEquals("a·a·\\-", re.standardizeRE("aa\\-"));
+        Assert.assertEquals("a·b·c·\\{·(ε|\\{)·(ε|\\{)", re.standardizeRE("abc\\{{1,3}"));
+        Assert.assertEquals("a·b·\\[·0·\\-·9·\\]", re.standardizeRE("ab\\[0\\-9\\]"));
+
+        // TODO 对输入的RE进行报错
+//        Assert.assertEquals("", re.standardizeRE("ab\\[0-9\\]"));
     }
 
     /**
@@ -88,22 +97,19 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testConvertInfixToPostfix() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        logger.debug(re.convertInfixToPostfix("(a|b)*") + "\n");
-        logger.debug(re.convertInfixToPostfix("(a*|b*)*") + "\n");
-        logger.debug(re.convertInfixToPostfix("((ε|a)·b*)*") + "\n");
-        logger.debug(re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*") + "\n");
-        logger.debug(re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c") + "\n");
 
-        logger.debug(re.convertInfixToPostfix("c·c·(a·b)·(a·b)·(ε|(a·b))·a·a·a") + "\n");
-        logger.debug(re.convertInfixToPostfix("c·c·c·c*·a·a·a") + "\n");
-        logger.debug(re.convertInfixToPostfix("c·c·(ε|(a·b))·(ε|(a·b))·(ε|(a·b))·a·a·a") + "\n");
-        logger.debug(re.convertInfixToPostfix(" c·c·c·a·a·a") + "\n");
-        logger.debug(re.convertInfixToPostfix("c·(ε|c)·(ε|c)·(ε|c)·a·a·a") + "\n");
+        Assert.assertEquals("ab|*", re.convertInfixToPostfix("(a|b)*"));
+        Assert.assertEquals("a*b*|*", re.convertInfixToPostfix("(a*|b*)*"));
+        Assert.assertEquals("εa|b*·*", re.convertInfixToPostfix("((ε|a)·b*)*"));
+        Assert.assertEquals("ab|*a·b·b·ab|*·", re.convertInfixToPostfix("(a|b)*·a·b·b·(a|b)*"));
+        Assert.assertEquals("ab·εa|·a·a*·a·b·b·b*·c·c·", re.convertInfixToPostfix("a·b·(ε|a)·a·a*·a·b·b·b*·c·c"));
 
-        /*
-        ab|*a·b·b·ab|*·
-        ab·εa|·a·a*·a·b·b·b*·c·c·
-         */
+        Assert.assertEquals("cc·ab··ab··εab·|·a·a·a·", re.convertInfixToPostfix("c·c·(a·b)·(a·b)·(ε|(a·b))·a·a·a"));
+        Assert.assertEquals("cc·c·c*·a·a·a·", re.convertInfixToPostfix("c·c·c·c*·a·a·a"));
+        Assert.assertEquals("cc·εab·|·εab·|·εab·|·a·a·a·", re.convertInfixToPostfix("c·c·(ε|(a·b))·(ε|(a·b))·(ε|(a·b))·a·a·a"));
+        Assert.assertEquals("cc·c·a·a·a·", re.convertInfixToPostfix("c·c·c·a·a·a"));
+        Assert.assertEquals("cεc|·εc|·εc|·a·a·a·", re.convertInfixToPostfix("c·(ε|c)·(ε|c)·(ε|c)·a·a·a"));
+
     }
 
     /**
@@ -112,8 +118,8 @@ public class RegularExpressionHandlerTest {
     @Test
     public void testConvertInfixToPostfix2() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        logger.debug(re.convertInfixToPostfix("\\,|;") + "\n");
-
+        Assert.assertEquals("\\,;|", re.convertInfixToPostfix("\\,|;"));
+        Assert.assertEquals("ab·c·\\{·ε\\{|·ε\\{|·", re.convertInfixToPostfix("a·b·c·\\{·(ε|\\{)·(ε|\\{)"));
     }
 
     @Test
