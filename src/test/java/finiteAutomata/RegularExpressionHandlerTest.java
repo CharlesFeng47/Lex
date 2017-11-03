@@ -52,6 +52,8 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.standardizeRE("cc(ab)[0-9a-z]?aaa") + "\n");
         logger.debug(re.standardizeRE("cc(ab)[0-9a-z]+aaa") + "\n");
         logger.debug(re.standardizeRE("cc(ab|(cd)*){2,3}aaa") + "\n");
+        logger.debug(re.standardizeRE("cc(ab)[abc]aaa") + "\n");
+        logger.debug(re.standardizeRE("cc(ab)[abc-fxy]aaa") + "\n");
     }
 
     /**

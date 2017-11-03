@@ -245,7 +245,8 @@ public class RegularExpressionHandler {
     /**
      * 将方括号里面的内容替换为普通的表达式
      */
-    private StringBuffer standardizeSquareBracketMark(final StringBuffer re, int markIndex) throws UnexpectedRegularExprRuleException {
+    private StringBuffer standardizeSquareBracketMark(final StringBuffer re, int markIndex)
+            throws UnexpectedRegularExprRuleException {
         StringBuffer result = new StringBuffer();
         result.append(re.substring(0, markIndex));
 
@@ -254,35 +255,45 @@ public class RegularExpressionHandler {
         int bracketEndIndex = sub.indexOf("]");
         String bracketContent = sub.substring(0, bracketEndIndex);
 
-        if (bracketContent.length() % 3 != 0) throw new UnexpectedRegularExprRuleException(re.toString());
-
         List<StringBuffer> bracketCompleted = new LinkedList<>();
-        for (int i = 0; i < bracketContent.length() / 3; i++) {
-            char separator = bracketContent.charAt(i * 3 + 1);
-            if (separator != '-') throw new UnexpectedRegularExprRuleException(re.toString());
+        for (int i = 0; i < bracketContent.length(); ) {
+            if (i < bracketContent.length() - 1 && bracketContent.charAt(i + 1) == '-') {
+                // 是连字符形式，按范围或起来
+                char start = bracketContent.charAt(i);
+                char end = bracketContent.charAt(i + 2);
 
-            char start = bracketContent.charAt(i * 3);
-            char end = bracketContent.charAt(i * 3 + 2);
+                int startIndex, endIndex;
+                if (ArrayUtils.contains(lowCaseCharSequence, start)) {
+                    // 小写字母
+                    startIndex = ArrayUtils.indexOf(lowCaseCharSequence, start);
+                    endIndex = ArrayUtils.indexOf(lowCaseCharSequence, end);
+                    bracketCompleted.add(standardizeSquareBracketMarkSeparatorToCompleted(startIndex, endIndex,
+                            SquareBracketMarkInnerType.LOW_CHAR));
+                } else if (ArrayUtils.contains(upCaseCharSequence, start)) {
+                    // 大写字母
+                    startIndex = ArrayUtils.indexOf(upCaseCharSequence, start);
+                    endIndex = ArrayUtils.indexOf(upCaseCharSequence, end);
+                    bracketCompleted.add(standardizeSquareBracketMarkSeparatorToCompleted(startIndex, endIndex,
+                            SquareBracketMarkInnerType.UP_CHAR));
+                } else if (ArrayUtils.contains(intSequence, start)) {
+                    // 数字
+                    startIndex = ArrayUtils.indexOf(intSequence, start);
+                    endIndex = ArrayUtils.indexOf(intSequence, end);
+                    bracketCompleted.add(standardizeSquareBracketMarkSeparatorToCompleted(startIndex, endIndex,
+                            SquareBracketMarkInnerType.INT));
+                }
 
-            int startIndex, endIndex;
-            if (ArrayUtils.contains(lowCaseCharSequence, start)) {
-                // 小写字母
-                startIndex = ArrayUtils.indexOf(lowCaseCharSequence, start);
-                endIndex = ArrayUtils.indexOf(lowCaseCharSequence, end);
-                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.LOW_CHAR));
-            } else if (ArrayUtils.contains(upCaseCharSequence, start)) {
-                // 大写字母
-                startIndex = ArrayUtils.indexOf(upCaseCharSequence, start);
-                endIndex = ArrayUtils.indexOf(upCaseCharSequence, end);
-                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.UP_CHAR));
-            } else if (ArrayUtils.contains(intSequence, start)) {
-                // 数字
-                startIndex = ArrayUtils.indexOf(intSequence, start);
-                endIndex = ArrayUtils.indexOf(intSequence, end);
-                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.INT));
+                i += 3;
+            } else {
+                // 没有被跳过最后一个字（单个字符）／不是连字符形式（单个字符），或起来
+                StringBuffer sb = new StringBuffer();
+                sb.append(bracketContent.charAt(i));
+                bracketCompleted.add(sb);
+
+                i++;
             }
-
         }
+
 
         // 将 bracketCompleted 中的结果集或起来
         if (bracketCompleted.size() > 1) {
@@ -307,7 +318,8 @@ public class RegularExpressionHandler {
      * @param startIndex 补全的第一个字母（含）
      * @param endIndex   补全的最后一个字母（含）
      */
-    private StringBuffer standardizeSBMarkToCompleted(int startIndex, int endIndex, SquareBracketMarkInnerType innerType) {
+    private StringBuffer standardizeSquareBracketMarkSeparatorToCompleted(int startIndex, int endIndex,
+                                                                          SquareBracketMarkInnerType innerType) {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
         switch (innerType) {
