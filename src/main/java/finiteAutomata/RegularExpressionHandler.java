@@ -76,7 +76,7 @@ public class RegularExpressionHandler {
 
     /**
      * 默认re不含有连接符
-     * 将 +、?、{}、[] 用基本符号代替
+     * 将扩展符 +、?、{}、[] 用基本符号代替
      * 添加省略的连接符'·'（对所有操作符画出所有的可能情况）
      *
      * @param re 输入的正则表达式
@@ -91,31 +91,41 @@ public class RegularExpressionHandler {
         int differ = 0;
         for (int i = 0; i < re.length(); i++) {
             char c = re.charAt(i);
-            int preLength = result.length();
 
-            if (c == '?') {
-                result = standardizeExtendedMark(result, i + differ, ExtendedMark.QUESTION_MARK);
+            if (c == '\\') {
+                // 转义字符跳过处理
+                i++;
+            } else {
+                int preLength = result.length();
+                if (c == '?') {
+                    result = standardizeExtendedMark(result, i + differ, ExtendedMark.QUESTION_MARK);
+                }
+                if (c == '+') {
+                    result = standardizeExtendedMark(result, i + differ, ExtendedMark.PLUS_MARK);
+                }
+                if (c == '{') {
+                    result = standardizeExtendedMark(result, i + differ, ExtendedMark.BRACE_MARK);
+                }
+                if (c == '[') {
+                    result = standardizeSquareBracketMark(result, i + differ);
+                }
+                differ += result.length() - preLength;
             }
-            if (c == '+') {
-                result = standardizeExtendedMark(result, i + differ, ExtendedMark.PLUS_MARK);
-            }
-            if (c == '{') {
-                result = standardizeExtendedMark(result, i + differ, ExtendedMark.BRACE_MARK);
-            }
-            if (c == '[') {
-                result = standardizeSquareBracketMark(result, i + differ);
-            }
-
-            differ += result.length() - preLength;
-
         }
 
-        // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差
+        // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差，curCharIsTransferred表示当前字符是否是转义字符
         String tempResult = result.toString();
         int joinCount = 0;
+        boolean curCharIsTransferred = false;
         for (int i = 0; i < tempResult.length() - 1; i++) {
             char before = tempResult.charAt(i);
             char after = tempResult.charAt(i + 1);
+
+            if (before == '\\') {
+                // 转义字符之间不添加连接符，跳过检查下一个操作符
+                curCharIsTransferred = true;
+                continue;
+            }
 
             // 输入RE不合法
             String temp = before + "" + after;
@@ -128,12 +138,14 @@ public class RegularExpressionHandler {
                 continue;
             }
 
-            if (after == '(' || isValidChar(after)) {
-                if (before == ')' || before == '*' || isValidChar(before)) {
+            if (after == '(' || isValidChar(false, after)) {
+                if (before == ')' || before == '*' || isValidChar(curCharIsTransferred, before)) {
                     result = standardizeJoinMark(result, i + joinCount);
                     joinCount++;
                 }
             }
+
+            curCharIsTransferred = false;
         }
         return result.toString();
     }
@@ -141,7 +153,7 @@ public class RegularExpressionHandler {
     /**
      * 处理扩展符号（+ / ? / {}）
      */
-    private StringBuffer standardizeExtendedMark(final StringBuffer re, int markIndex, ExtendedMark mark) {
+    private StringBuffer standardizeExtendedMark(final StringBuffer re, int markIndex, ExtendedMark mark) throws UnexpectedRegularExprRuleException {
         StringBuffer result = new StringBuffer();
 
         // ? 前面是括号，需要找到核
@@ -167,6 +179,8 @@ public class RegularExpressionHandler {
             String sub = re.substring(markIndex + 1);
             int braceEndIndex = sub.indexOf("}");
             int commaIndex = sub.indexOf(",");
+
+            if (braceEndIndex == -1) throw new UnexpectedRegularExprRuleException(re.toString());
 
             if (commaIndex == -1) {
                 // {n} 类型。没有逗号，只有数字，重复数字遍即可
@@ -253,6 +267,9 @@ public class RegularExpressionHandler {
         // 方括号里面的内容
         String sub = re.substring(markIndex + 1);
         int bracketEndIndex = sub.indexOf("]");
+
+        if (bracketEndIndex == -1) throw new UnexpectedRegularExprRuleException(re.toString());
+
         String bracketContent = sub.substring(0, bracketEndIndex);
 
         List<StringBuffer> bracketCompleted = new LinkedList<>();
@@ -350,13 +367,25 @@ public class RegularExpressionHandler {
 
 
     /**
-     * 判断re中的输入字符是否合法
-     * 只支持数字和字母
+     * 判断 re 中的输入字符 c 在条件 isTransferred 下是否合法
      */
-    private boolean isValidChar(char c) {
-        if (Character.isDigit(c)) return true;
-        if (Character.isLetter(c)) return true;
-        return false;
+    private boolean isValidChar(boolean isTransferred, char toTest) {
+        if (isTransferred) {
+            // 转义字符
+            return isOperand(toTest);
+        } else {
+            // 普通字符
+            return !isOperand(toTest);
+
+        }
+    }
+
+    /**
+     * 判断字符 c 是不是操作符
+     */
+    private boolean isOperand(char c) {
+        return (c == '·' || c == '|' || c == '*' || c == '(' || c == ')' || c == '+' || c == '?' || c == '{' || c == '}'
+                || c == '[' || c == ']' || c == '-');
     }
 
 
@@ -371,9 +400,17 @@ public class RegularExpressionHandler {
         // 操作符的栈
         Stack<Character> operandStack = new Stack<>();
 
-        for (char c : re.toCharArray()) {
-            // 非操作符
-            if (isValidChar(c)) {
+        for (int i = 0; i < re.length(); i++) {
+            char c = re.charAt(i);
+
+            // 转义的操作符
+            if (c == '\\') {
+                sb.append(re.charAt(++i));
+                continue;
+            }
+
+            // 非操作符 TODO
+            if (isValidChar(false, c)) {
                 sb.append(c);
                 continue;
             }

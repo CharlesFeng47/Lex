@@ -62,7 +62,24 @@ public class RegularExpressionHandlerTest {
     @Test(expected = UnexpectedRegularExprRuleException.class)
     public void testStandardizeRE2() throws Exception {
         RegularExpressionHandler re = new RegularExpressionHandler();
-        logger.debug(re.standardizeRE("aa(*)") + "\n");
+//        logger.debug(re.standardizeRE("aa(*)") + "\n");
+        logger.debug(re.standardizeRE("aa[") + "\n");
+    }
+
+    /**
+     * Method: standardizeRE(String re)
+     */
+    @Test
+    public void testStandardizeRE3() throws Exception {
+        RegularExpressionHandler re = new RegularExpressionHandler();
+//        logger.debug(re.standardizeRE("aa\\|") + "\n");
+//        logger.debug(re.standardizeRE("aa\\{") + "\n");
+        logger.debug(re.standardizeRE("aa\\{\\}") + "\n");
+        logger.debug(re.standardizeRE("aa\\+") + "\n");
+        logger.debug(re.standardizeRE("aa\\?") + "\n");
+        logger.debug(re.standardizeRE("aa\\[") + "\n");
+        logger.debug(re.standardizeRE("aa\\[\\]") + "\n");
+        logger.debug(re.standardizeRE("aa\\-") + "\n");
     }
 
     /**
@@ -83,13 +100,20 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.convertInfixToPostfix(" c·c·c·a·a·a") + "\n");
         logger.debug(re.convertInfixToPostfix("c·(ε|c)·(ε|c)·(ε|c)·a·a·a") + "\n");
 
-        // TODO 只支持数字字母
-//        logger.debug(re.convertInfixToPostfix(",|;") + "\n");
-
         /*
         ab|*a·b·b·ab|*·
         ab·εa|·a·a*·a·b·b·b*·c·c·
          */
+    }
+
+    /**
+     * Method: convertInfixToPostfix(String re)
+     */
+    @Test
+    public void testConvertInfixToPostfix2() throws Exception {
+        RegularExpressionHandler re = new RegularExpressionHandler();
+        logger.debug(re.convertInfixToPostfix("\\,|;") + "\n");
+
     }
 
     @Test
