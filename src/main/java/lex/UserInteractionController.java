@@ -22,8 +22,11 @@ public class UserInteractionController {
         List<String> lexemes = new LinkedList<>();
         String line;
         while (!(line = sc.nextLine()).equals("###")) {
-            line = line.trim();
-            lexemes.add(line);
+            String[] parts = line.split(" ");
+            for (String lexeme: parts) {
+                if (!lexeme.equals(""))
+                lexemes.add(lexeme);
+            }
         }
 
         return lexemes;
