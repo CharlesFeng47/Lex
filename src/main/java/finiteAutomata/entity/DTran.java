@@ -1,5 +1,7 @@
 package finiteAutomata.entity;
 
+import org.apache.log4j.Logger;
+
 import java.util.List;
 
 /**
@@ -8,6 +10,8 @@ import java.util.List;
  * 标记子集构造法中产生的映射关系
  */
 public class DTran {
+
+    private static Logger logger = Logger.getLogger(DTran.class);
 
     /**
      * 构造中产生的等价转换的出发状态
@@ -56,17 +60,15 @@ public class DTran {
 
     // 控制台呈现该DTran
     public void show() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (FA_State state : from) {
-            System.out.print(state.getStateID() + " ");
+            sb.append(state.getStateID() + " ");
         }
-        System.out.println();
-        System.out.print(label);
-        System.out.println();
+        sb.append("\n" + label + "\n");
         for (FA_State state : to) {
-            System.out.print(state.getStateID() + " ");
+            sb.append(state.getStateID() + " ");
         }
-        System.out.println();
-        System.out.println();
-        System.out.println();
+        logger.debug(sb.toString());
     }
 }

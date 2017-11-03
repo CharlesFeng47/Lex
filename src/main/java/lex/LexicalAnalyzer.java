@@ -74,7 +74,6 @@ public class LexicalAnalyzer {
 
                 curDFA = faController.lexicalAnalysis(res, patterns);
                 patternDFAMap.put(pattern, curDFA);
-
             }
 
             // 使用当前的 DFA 进行测试
