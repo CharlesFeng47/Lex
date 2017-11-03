@@ -1,8 +1,10 @@
 package finiteAutomata;
 
 import exceptions.UnexpectedRegularExprRuleException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 import utilties.ExtendedMark;
+import utilties.SquareBracketMarkInnerType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +30,29 @@ public class RegularExpressionHandler {
      */
     private static List<Character> priority;
 
+    /**
+     * 匹配如 [a-z]
+     */
+    private static char[] lowCaseCharSequence = {
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+    };
+
+    /**
+     * 匹配如 [A-Z]
+     */
+    private static char[] upCaseCharSequence = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
+
+    /**
+     * 匹配如 [0-9]
+     */
+    private static char[] intSequence = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
+
     public RegularExpressionHandler() {
         unexpectedRERules = new LinkedList<>();
         unexpectedRERules.add("(*");
@@ -51,7 +76,7 @@ public class RegularExpressionHandler {
 
     /**
      * 默认re不含有连接符
-     * 将 +、?、{} 用基本符号代替
+     * 将 +、?、{}、[] 用基本符号代替
      * 添加省略的连接符'·'（对所有操作符画出所有的可能情况）
      *
      * @param re 输入的正则表达式
@@ -66,21 +91,23 @@ public class RegularExpressionHandler {
         int differ = 0;
         for (int i = 0; i < re.length(); i++) {
             char c = re.charAt(i);
+            int preLength = result.length();
+
             if (c == '?') {
-                int preLength = result.length();
                 result = standardizeExtendedMark(result, i + differ, ExtendedMark.QUESTION_MARK);
-                differ += result.length() - preLength;
             }
             if (c == '+') {
-                int preLength = result.length();
                 result = standardizeExtendedMark(result, i + differ, ExtendedMark.PLUS_MARK);
-                differ += result.length() - preLength;
             }
             if (c == '{') {
-                int preLength = result.length();
                 result = standardizeExtendedMark(result, i + differ, ExtendedMark.BRACE_MARK);
-                differ += result.length() - preLength;
             }
+            if (c == '[') {
+                result = standardizeSquareBracketMark(result, i + differ);
+            }
+
+            differ += result.length() - preLength;
+
         }
 
         // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差
@@ -112,7 +139,7 @@ public class RegularExpressionHandler {
     }
 
     /**
-     * 处理特殊符号（+／?）
+     * 处理扩展符号（+ / ? / {}）
      */
     private StringBuffer standardizeExtendedMark(final StringBuffer re, int markIndex, ExtendedMark mark) {
         StringBuffer result = new StringBuffer();
@@ -123,7 +150,7 @@ public class RegularExpressionHandler {
 
         if (re.charAt(markIndex - 1) == ')') {
             // 核为非单字符
-            contentStartIndex = re.lastIndexOf("(");
+            contentStartIndex = getContentStartIndexOfExtendedMark(re, markIndex);
             content = re.substring(contentStartIndex, markIndex);
         } else {
             // 核直接是前面的单个字符
@@ -187,6 +214,24 @@ public class RegularExpressionHandler {
     }
 
     /**
+     * 找到扩展符号（+ / ? / {}）作用的核的左括号
+     */
+    private int getContentStartIndexOfExtendedMark(final StringBuffer re, int markIndex) {
+        int pairCount = 0;
+
+        int contentStartIndex;
+        for (contentStartIndex = markIndex - 1; contentStartIndex >= 0; contentStartIndex--) {
+            char c = re.charAt(contentStartIndex);
+            if (c == ')') pairCount++;
+            else if (c == '(') {
+                if (pairCount == 1) break;
+                else pairCount--;
+            }
+        }
+        return contentStartIndex;
+    }
+
+    /**
      * 增加省略的连接符（·）
      *
      * @param joinIndex 需要在两个字符中间添加连接符号，第一个字符的index
@@ -196,6 +241,101 @@ public class RegularExpressionHandler {
         sb.append(re.substring(0, joinIndex + 1)).append('·').append(re.substring(joinIndex + 1));
         return sb;
     }
+
+    /**
+     * 将方括号里面的内容替换为普通的表达式
+     */
+    private StringBuffer standardizeSquareBracketMark(final StringBuffer re, int markIndex) throws UnexpectedRegularExprRuleException {
+        StringBuffer result = new StringBuffer();
+        result.append(re.substring(0, markIndex));
+
+        // 方括号里面的内容
+        String sub = re.substring(markIndex + 1);
+        int bracketEndIndex = sub.indexOf("]");
+        String bracketContent = sub.substring(0, bracketEndIndex);
+
+        if (bracketContent.length() % 3 != 0) throw new UnexpectedRegularExprRuleException(re.toString());
+
+        List<StringBuffer> bracketCompleted = new LinkedList<>();
+        for (int i = 0; i < bracketContent.length() / 3; i++) {
+            char separator = bracketContent.charAt(i * 3 + 1);
+            if (separator != '-') throw new UnexpectedRegularExprRuleException(re.toString());
+
+            char start = bracketContent.charAt(i * 3);
+            char end = bracketContent.charAt(i * 3 + 2);
+
+            int startIndex, endIndex;
+            if (ArrayUtils.contains(lowCaseCharSequence, start)) {
+                // 小写字母
+                startIndex = ArrayUtils.indexOf(lowCaseCharSequence, start);
+                endIndex = ArrayUtils.indexOf(lowCaseCharSequence, end);
+                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.LOW_CHAR));
+            } else if (ArrayUtils.contains(upCaseCharSequence, start)) {
+                // 大写字母
+                startIndex = ArrayUtils.indexOf(upCaseCharSequence, start);
+                endIndex = ArrayUtils.indexOf(upCaseCharSequence, end);
+                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.UP_CHAR));
+            } else if (ArrayUtils.contains(intSequence, start)) {
+                // 数字
+                startIndex = ArrayUtils.indexOf(intSequence, start);
+                endIndex = ArrayUtils.indexOf(intSequence, end);
+                bracketCompleted.add(standardizeSBMarkToCompleted(startIndex, endIndex, SquareBracketMarkInnerType.INT));
+            }
+
+        }
+
+        // 将 bracketCompleted 中的结果集或起来
+        if (bracketCompleted.size() > 1) {
+            result.append("(").append(bracketCompleted.get(0));
+            for (int i = 1; i < bracketCompleted.size(); i++) {
+                result.append("|").append(bracketCompleted.get(i));
+
+            }
+            result.append(")");
+        } else {
+            result.append(bracketCompleted.get(0));
+        }
+
+        if (bracketEndIndex != sub.length() - 1) result.append(sub.substring(bracketEndIndex + 1));
+        logger.debug(result);
+        return result;
+    }
+
+    /**
+     * 对 [m-n] 类型的字符串进行补全
+     *
+     * @param startIndex 补全的第一个字母（含）
+     * @param endIndex   补全的最后一个字母（含）
+     */
+    private StringBuffer standardizeSBMarkToCompleted(int startIndex, int endIndex, SquareBracketMarkInnerType innerType) {
+        StringBuffer sb = new StringBuffer();
+        sb.append("(");
+        switch (innerType) {
+            case LOW_CHAR:
+                for (int i = startIndex; i < endIndex; i++) {
+                    sb.append(lowCaseCharSequence[i]).append("|");
+                }
+                sb.append(lowCaseCharSequence[endIndex]);
+                break;
+
+            case UP_CHAR:
+                for (int i = startIndex; i < endIndex; i++) {
+                    sb.append(upCaseCharSequence[i]).append("|");
+                }
+                sb.append(upCaseCharSequence[endIndex]);
+                break;
+
+            case INT:
+                for (int i = startIndex; i < endIndex; i++) {
+                    sb.append(intSequence[i]).append("|");
+                }
+                sb.append(intSequence[endIndex]);
+                break;
+        }
+        sb.append(")");
+        return sb;
+    }
+
 
     /**
      * 判断re中的输入字符是否合法

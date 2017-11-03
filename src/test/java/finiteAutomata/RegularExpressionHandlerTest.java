@@ -1,5 +1,6 @@
 package finiteAutomata;
 
+import exceptions.UnexpectedRegularExprRuleException;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -47,6 +48,19 @@ public class RegularExpressionHandlerTest {
         logger.debug(re.standardizeRE("cc{, 3}aaa") + "\n");
 
         logger.debug(re.standardizeRE("c·(ε|c)·(ε|c){1,  2}aa·a") + "\n");
+        logger.debug(re.standardizeRE("ca{0,3}·(ε|c){1,  2}aa·a") + "\n");
+        logger.debug(re.standardizeRE("cc(ab)[0-9a-z]?aaa") + "\n");
+        logger.debug(re.standardizeRE("cc(ab)[0-9a-z]+aaa") + "\n");
+        logger.debug(re.standardizeRE("cc(ab|(cd)*){2,3}aaa") + "\n");
+    }
+
+    /**
+     * Method: standardizeRE(String re)
+     */
+    @Test(expected = UnexpectedRegularExprRuleException.class)
+    public void testStandardizeRE2() throws Exception {
+        RegularExpressionHandler re = new RegularExpressionHandler();
+        logger.debug(re.standardizeRE("aa(*)") + "\n");
     }
 
     /**
@@ -127,6 +141,18 @@ public class RegularExpressionHandlerTest {
          */
     }
 
+    @Test
+    public void testStandardizeSquareBracketMark() throws Exception {
+        RegularExpressionHandler regularExpressionHandler = new RegularExpressionHandler();
+
+        Method method = RegularExpressionHandler.class.getDeclaredMethod("standardizeSquareBracketMark", StringBuffer.class, int.class);
+        method.setAccessible(true);
+
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("cc(ab)[0-9a-z]aaa");
+
+        method.invoke(regularExpressionHandler, stringBuffer, 6);
+    }
 
     /**
      * Method: comparePriority(char curChar, char top)
