@@ -86,9 +86,17 @@ public class RegularExpressionHandlerTest {
         Assert.assertEquals("a·a·\\-", re.standardizeRE("aa\\-"));
         Assert.assertEquals("a·b·c·\\{·(ε|\\{)·(ε|\\{)", re.standardizeRE("abc\\{{1,3}"));
         Assert.assertEquals("a·b·\\[·0·\\-·9·\\]", re.standardizeRE("ab\\[0\\-9\\]"));
+        Assert.assertEquals("\\{·a*·b*·c·(ε|c)·(ε|c)·\\}", re.standardizeRE("\\{a*b*c{1,3}\\}"));
+    }
 
-        // TODO 对输入的RE进行报错
-//        Assert.assertEquals("", re.standardizeRE("ab\\[0-9\\]"));
+    /**
+     * Method: standardizeRE(String re)
+     */
+    @Test(expected = UnexpectedRegularExprRuleException.class)
+    public void testStandardizeRE4() throws Exception {
+        RegularExpressionHandler re = new RegularExpressionHandler();
+//        re.standardizeRE("ab\\[0-9\\]");
+        re.standardizeRE("ab\\[0\\-9\\]\\[0-\\9]");
     }
 
     /**
@@ -120,6 +128,7 @@ public class RegularExpressionHandlerTest {
         RegularExpressionHandler re = new RegularExpressionHandler();
         Assert.assertEquals("\\,;|", re.convertInfixToPostfix("\\,|;"));
         Assert.assertEquals("ab·c·\\{·ε\\{|·ε\\{|·", re.convertInfixToPostfix("a·b·c·\\{·(ε|\\{)·(ε|\\{)"));
+        Assert.assertEquals("\\{a*·b*·c·εc|·εc|·\\}·", re.convertInfixToPostfix("\\{·a*·b*·c·(ε|c)·(ε|c)·\\}"));
     }
 
     @Test

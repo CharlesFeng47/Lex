@@ -40,6 +40,15 @@ public class NFA_HandlerTest {
     }
 
     /**
+     * Method: getFromRE(String re)
+     */
+    @Test
+    public void testGetFromRE3() throws Exception {
+        NFA_Handler handler = new NFA_Handler();
+        handler.getFromRE("\\{a*·b*·c·εc|·εc|·\\}·", "ID");
+    }
+
+    /**
      * Method: combine(List<NFA> nfaList)
      */
     @Test

@@ -113,8 +113,11 @@ public class RegularExpressionHandler {
             }
         }
 
-        // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差，curCharIsTransferred表示当前字符是否是转义字符
         String tempResult = result.toString();
+        checkREValidation(tempResult);
+
+
+        // 补充连接符，joinCount表示连接前后的对当前处理字符的Index差，curCharIsTransferred表示当前字符是否是转义字符
         int joinCount = 0;
         boolean curCharIsTransferred = false;
         for (int i = 0; i < tempResult.length() - 1; i++) {
@@ -125,12 +128,6 @@ public class RegularExpressionHandler {
                 // 转义字符之间不添加连接符，跳过检查下一个操作符
                 curCharIsTransferred = true;
                 continue;
-            }
-
-            // 输入RE不合法
-            String temp = before + "" + after;
-            if (unexpectedRERules.contains(temp)) {
-                throw new UnexpectedRegularExprRuleException(temp);
             }
 
             // 合法情况下含有连接符号的都不需要处理
@@ -371,6 +368,40 @@ public class RegularExpressionHandler {
         }
         sb.append(")");
         return sb;
+    }
+
+    /**
+     * 检查标准化正则定义的正确性
+     */
+    private void checkREValidation(final String re) throws UnexpectedRegularExprRuleException {
+        for (int i = 0; i < re.length() - 1; i++) {
+            char before = re.charAt(i);
+            char after = re.charAt(i + 1);
+
+            // 输入RE不合法
+            String temp = before + "" + after;
+            if (unexpectedRERules.contains(temp)) {
+                throw new UnexpectedRegularExprRuleException(temp);
+            }
+        }
+
+        // 转义字符不合法
+        // {m, n} 形式已在标准化时处理
+        String toCheckComma = re;
+        int commaIndex;
+        while ((commaIndex = toCheckComma.indexOf(",")) != -1) {
+            if (toCheckComma.charAt(commaIndex - 1) != '\\') throw new UnexpectedRegularExprRuleException(re);
+            else toCheckComma = toCheckComma.substring(commaIndex + 1);
+        }
+
+        // [m-n] 形式已在标准化时处理
+        String toCheckSeparator = re;
+        int separatorIndex;
+        while ((separatorIndex = toCheckSeparator.indexOf("-")) != -1) {
+            if (toCheckSeparator.charAt(separatorIndex - 1) != '\\') throw new UnexpectedRegularExprRuleException(re);
+            else toCheckSeparator = toCheckSeparator.substring(separatorIndex + 1);
+        }
+
     }
 
 

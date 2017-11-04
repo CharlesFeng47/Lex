@@ -41,6 +41,8 @@ public class FA_ControllerTest {
 //        res.add("((ε|a)b*)*");
         res.add("(a|b)*abb(a|b)*");
         res.add("aba?a+abb+cc");
+        res.add("\\{a*b*c{1,3}\\}");
+
 
         List<String> patterns = new LinkedList<>();
         patterns.add("ID");

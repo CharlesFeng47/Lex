@@ -156,7 +156,8 @@ public class DFA_HandlerTest {
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();
 
-        String re = "(a|b)*abb(a|b)*";
+//        String re = "(a|b)*abb(a|b)*";
+        String re = "\\{a*b*c{1,3}\\}";
         re = rgHandler.convertInfixToPostfix(rgHandler.standardizeRE(re));
         NFA finalNFA = nfaHandler.getFromRE(re, null);
         DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(finalNFA));
