@@ -460,6 +460,8 @@ public class RegularExpressionHandler {
                 }
 
             }
+
+            curCharIsTransferred = false;
         }
 
         // 栈中剩余操作符

@@ -25,9 +25,18 @@ public class NFA_HandlerTest {
      * Method: getFromRE(String re)
      */
     @Test
-    public void testGetFromRE() throws Exception {
+    public void testGetFromRE1() throws Exception {
         NFA_Handler handler = new NFA_Handler();
         handler.getFromRE("ab·a|*", "ID");
+    }
+
+    /**
+     * Method: getFromRE(String re)
+     */
+    @Test
+    public void testGetFromRE2() throws Exception {
+        NFA_Handler handler = new NFA_Handler();
+        handler.getFromRE("ab·c·\\{·ε\\{|·ε\\{|·", "ID");
     }
 
     /**

@@ -32,20 +32,28 @@ public class NFA_Handler {
         // 栈中暂时保存处理过的NFA
         Stack<NFA> handling = new Stack<>();
 
-        for (char c : re.toCharArray()) {
-            switch (c) {
-                case '·':
-                    handling = join(handling);
-                    break;
-                case '|':
-                    handling = or(handling);
-                    break;
-                case '*':
-                    handling = closure(handling);
-                    break;
-                default:
-                    handling = add(handling, c);
-                    break;
+        for (int i = 0; i < re.length(); i++) {
+            char c = re.charAt(i);
+
+            if (c == '\\') {
+                // 转义字符不作为连接符，直接连接
+                handling = add(handling, re.charAt(i+1));
+                i++;
+            } else {
+                switch (c) {
+                    case '·':
+                        handling = join(handling);
+                        break;
+                    case '|':
+                        handling = or(handling);
+                        break;
+                    case '*':
+                        handling = closure(handling);
+                        break;
+                    default:
+                        handling = add(handling, c);
+                        break;
+                }
             }
         }
 
