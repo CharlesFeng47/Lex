@@ -18,6 +18,6 @@ public class NotMatchingException extends Exception {
 
     @Override
     public String getMessage() {
-        return "DFA 中对词素" + lexeme +  "无匹配状态";
+        return "转换生成的 DFA 中对词素 " + lexeme +  " 无匹配状态";
     }
 }

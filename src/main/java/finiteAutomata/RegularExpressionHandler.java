@@ -430,7 +430,7 @@ public class RegularExpressionHandler {
 
     /**
      * 将标准化后的正则定义的中缀表达式改为后缀表达式
-     * 注：暂只考虑并、或、闭包，括号
+     * 只含有并、或、闭包，括号
      */
     public String convertInfixToPostfix(String re) {
         // 存储结果的后缀字符串

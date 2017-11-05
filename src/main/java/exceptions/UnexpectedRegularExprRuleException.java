@@ -19,6 +19,6 @@ public class UnexpectedRegularExprRuleException extends Exception {
 
     @Override
     public String getMessage() {
-        return re + "不符合规格";
+        return "输入中 " + re + " 不符合规格";
     }
 }

@@ -95,70 +95,7 @@ public class DFA_Handler {
             dTran.show();
         }
 
-
-        // 子集构造法结束，根据dStates、dTrans构造相对应的DFA（dStates从后往前即为现等价状态的产生顺序）
-        // pre代表原NFA，cur代表对应的DFA
-        List<FA_State> preTerminatedStates = nfa.getTerminatedStates();
-
-        List<FA_State> curStates = new FA_StatesList();
-        List<FA_State> curTerminatedStates = new FA_StatesList();
-
-        // 标记子集构造法中形成的等价节点和现在简化的节点之间的映射
-        Map<List<FA_State>, FA_State> faStatesConvertTable = new LinkedHashMap<>();
-
-        // dStates 顺序压入，重新更换为简单 FA_State 也是顺序
-        int curIndex = 0;
-        for (List<FA_State> nowConvertedNFAStates : dStates.keySet()) {
-            FA_State equivalentState = new FA_State(curIndex);
-            curStates.add(equivalentState);
-            curIndex++;
-
-            faStatesConvertTable.put(nowConvertedNFAStates, equivalentState);
-
-            // 含有原 NFA 终止态的即为现终止态
-            if (isTerminatedState(preTerminatedStates, nowConvertedNFAStates)) {
-                curTerminatedStates.add(equivalentState);
-            }
-        }
-
-        // 把 dTrans 上的连接加入现在 DFA，并存入 DFA 成员变量 move
-        Map<FA_State, Map<Character, FA_State>> move = new LinkedHashMap<>();
-        for (DTran dTran : dTrans) {
-            FA_State curStart = faStatesConvertTable.get(dTran.getFrom());
-            FA_State curTo = faStatesConvertTable.get(dTran.getTo());
-            char label = dTran.getLabel();
-
-            FA_Edge curEdge = new FA_Edge(label, curTo);
-            curStart.getFollows().add(curEdge);
-
-            Map<Character, FA_State> curMove = move.get(curStart);
-            if (curMove != null) {
-                curMove.put(label, curTo);
-            } else {
-                curMove = new HashMap<>();
-                curMove.put(label, curTo);
-                move.put(curStart, curMove);
-            }
-        }
-
-        // 打印真正 DFA 的状态对应表
-        logger.info("NFA 经过子集构造法完成后真正的状态转换表");
-        showDFATrans(move);
-
-        curStates.sort(comparator);
-        curTerminatedStates.sort(comparator);
-
-        DFA dfa = new DFA();
-        dfa.setStart(curStates.get(0));
-        dfa.setAlphabet(nfa.getAlphabet());
-        dfa.setStates(curStates);
-        dfa.setTerminatedStates(curTerminatedStates);
-        dfa.setMove(move);
-
-        // 将原 NFA 对应的模式 pattern 加入现在的 DFA 映射
-        DFA_StatePatternMappingController.add(dfa, NFA_StatePatternMappingController.getMap().get(nfa));
-
-        return dfa;
+        return getEquivalentDFA(nfa, dStates, dTrans);
     }
 
     /**
@@ -234,6 +171,75 @@ public class DFA_Handler {
         newList.retainAll(pre);
 
         return newList.size() != 0;
+    }
+
+    /**
+     * @param nfa 原 NFA
+     * @return 通过子集构造法构建的等价的简单 DFA
+     */
+    private DFA getEquivalentDFA(NFA nfa, Map<List<FA_State>, Boolean> dStates, List<DTran> dTrans) {
+        // 子集构造法结束，根据dStates、dTrans构造相对应的DFA（dStates从后往前即为现等价状态的产生顺序）
+        // pre代表原NFA，cur代表对应的DFA
+        List<FA_State> preTerminatedStates = nfa.getTerminatedStates();
+
+        List<FA_State> curStates = new FA_StatesList();
+        List<FA_State> curTerminatedStates = new FA_StatesList();
+
+        // 标记子集构造法中形成的等价节点和现在简化的节点之间的映射
+        Map<List<FA_State>, FA_State> faStatesConvertTable = new LinkedHashMap<>();
+
+        // dStates 顺序压入，重新更换为简单 FA_State 也是顺序
+        int curIndex = 0;
+        for (List<FA_State> nowConvertedNFAStates : dStates.keySet()) {
+            FA_State equivalentState = new FA_State(curIndex);
+            curStates.add(equivalentState);
+            curIndex++;
+
+            faStatesConvertTable.put(nowConvertedNFAStates, equivalentState);
+
+            // 含有原 NFA 终止态的即为现终止态
+            if (isTerminatedState(preTerminatedStates, nowConvertedNFAStates)) {
+                curTerminatedStates.add(equivalentState);
+            }
+        }
+
+        // 把 dTrans 上的连接加入现在 DFA，并存入 DFA 成员变量 move
+        Map<FA_State, Map<Character, FA_State>> move = new LinkedHashMap<>();
+        for (DTran dTran : dTrans) {
+            FA_State curStart = faStatesConvertTable.get(dTran.getFrom());
+            FA_State curTo = faStatesConvertTable.get(dTran.getTo());
+            char label = dTran.getLabel();
+
+            FA_Edge curEdge = new FA_Edge(label, curTo);
+            curStart.getFollows().add(curEdge);
+
+            Map<Character, FA_State> curMove = move.get(curStart);
+            if (curMove != null) {
+                curMove.put(label, curTo);
+            } else {
+                curMove = new HashMap<>();
+                curMove.put(label, curTo);
+                move.put(curStart, curMove);
+            }
+        }
+
+        // 打印真正 DFA 的状态对应表
+        logger.info("NFA 经过子集构造法完成后真正的状态转换表");
+        showDFATrans(move);
+
+        curStates.sort(comparator);
+        curTerminatedStates.sort(comparator);
+
+        DFA dfa = new DFA();
+        dfa.setStart(curStates.get(0));
+        dfa.setAlphabet(nfa.getAlphabet());
+        dfa.setStates(curStates);
+        dfa.setTerminatedStates(curTerminatedStates);
+        dfa.setMove(move);
+
+        // 将原 NFA 对应的模式 pattern 加入现在的 DFA 映射
+        DFA_StatePatternMappingController.add(dfa, NFA_StatePatternMappingController.getMap().get(nfa));
+        return dfa;
     }
 
 

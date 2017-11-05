@@ -2,6 +2,10 @@ package lex;
 
 import lex.entity.Token;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -23,9 +27,9 @@ public class UserInteractionController {
         String line;
         while (!(line = sc.nextLine()).equals("###")) {
             String[] parts = line.split(" ");
-            for (String lexeme: parts) {
+            for (String lexeme : parts) {
                 if (!lexeme.equals(""))
-                lexemes.add(lexeme);
+                    lexemes.add(lexeme);
             }
         }
 
@@ -36,16 +40,51 @@ public class UserInteractionController {
      * 向用户展示所有的词法单元结果
      */
     public void showAllTokens(List<Token> tokens) {
-        System.out.println("-------------------");
-        for (Token token : tokens) {
-            System.out.print("<");
-            System.out.print(token.getPatternType());
-            if (token.getAttribute() != null) {
-                System.out.print(", ");
-                System.out.print(token.getAttribute());
-            }
-            System.out.println(">");
+        String s = getTokenOutput(tokens);
+        showInConsole(s);
+        try {
+            showInFile(s);
+        } catch (IOException e) {
+            System.out.println("Token 序列输出到文件：失败！");
         }
-        System.out.println("-------------------");
+    }
+
+    /**
+     * 从 token 序列中获取要输出的内容
+     */
+    private String getTokenOutput(List<Token> tokens) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("-------------------\n");
+        for (Token token : tokens) {
+            sb.append("<").append(token.getPatternType());
+            if (token.getAttribute() != null) {
+                sb.append(", ");
+                sb.append(token.getAttribute());
+            }
+            sb.append(">").append("\n");
+        }
+        sb.append("-------------------");
+        return sb.toString();
+    }
+
+    /**
+     * 控制台输出
+     */
+    private void showInConsole(String s) {
+        System.out.println(s);
+    }
+
+    /**
+     * 文件输出
+     */
+    private void showInFile(String s) throws IOException {
+        File file = new File(System.getProperty("user.dir") + " "+ LocalDateTime.now() + ".txt");
+        if (file.createNewFile()) {
+            FileWriter writer = new FileWriter(file);
+            writer.write(s);
+            writer.flush();
+            writer.close();
+        }
+
     }
 }

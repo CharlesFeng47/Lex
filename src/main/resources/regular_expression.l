@@ -5,3 +5,4 @@ word [a-zA-Z]*
 id [a-zA-Z][_a-zA-Z0-9]*
 testTransferred1 \{a*b*c{1,3}\}
 testTransferred2 \[0\-9\]a*
+quotation "[a-zA-Z]*"
