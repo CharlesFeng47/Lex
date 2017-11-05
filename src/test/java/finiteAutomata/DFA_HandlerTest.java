@@ -1,6 +1,5 @@
 package finiteAutomata;
 
-import exceptions.UnexpectedRegularExprRuleException;
 import finiteAutomata.entity.DFA;
 import finiteAutomata.entity.FA_Edge;
 import finiteAutomata.entity.FA_State;
@@ -14,7 +13,6 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * DFA_Handler Tester.

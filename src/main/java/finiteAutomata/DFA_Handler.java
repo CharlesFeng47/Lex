@@ -26,7 +26,7 @@ public class DFA_Handler {
      * @param nfa 需要转变的NFA
      * @return 与输入NFA一致的DFA
      */
-    public DFA getFromNFA(NFA nfa) {
+    public DFA getFromNFA(final NFA nfa) {
         List<DTran> dTrans = new LinkedList<>();
 
         // dStates为<闭包, 已标记>，LinkedHashMap保证为顺序而不是 hash 过的
@@ -100,7 +100,7 @@ public class DFA_Handler {
         // pre代表原NFA，cur代表对应的DFA
         List<FA_State> preTerminatedStates = nfa.getTerminatedStates();
 
-        List<FA_State> curStates = new LinkedList<>();
+        List<FA_State> curStates = new FA_StatesList();
         List<FA_State> curTerminatedStates = new FA_StatesList();
 
         // 标记子集构造法中形成的等价节点和现在简化的节点之间的映射
@@ -109,20 +109,15 @@ public class DFA_Handler {
         // dStates 顺序压入，重新更换为简单 FA_State 也是顺序
         int curIndex = 0;
         for (List<FA_State> nowConvertedNFAStates : dStates.keySet()) {
-            FA_State EquivalentState = new FA_State(curIndex);
-            curStates.add(EquivalentState);
+            FA_State equivalentState = new FA_State(curIndex);
+            curStates.add(equivalentState);
             curIndex++;
 
-            faStatesConvertTable.put(nowConvertedNFAStates, EquivalentState);
+            faStatesConvertTable.put(nowConvertedNFAStates, equivalentState);
 
-            // 原 NFA 终止态与现在转换后的 StateList 有交集的即为现终止态，而这种交集也反映在与 State 一一对应的模式上
-            List<String> equivalentStatePatterns = getEquivalentStatePatterns(preTerminatedStates, nowConvertedNFAStates);
-            if (equivalentStatePatterns != null) {
-                curTerminatedStates.add(EquivalentState);
-
-                // 将原NFA终止态对应的模式 pattern 加入现在的映射
-                DFA_StatePatternMappingController.add(EquivalentState, equivalentStatePatterns);
-
+            // 含有原 NFA 终止态的即为现终止态
+            if (isTerminatedState(preTerminatedStates, nowConvertedNFAStates)) {
+                curTerminatedStates.add(equivalentState);
             }
         }
 
@@ -150,12 +145,19 @@ public class DFA_Handler {
         logger.info("NFA 经过子集构造法完成后真正的状态转换表");
         showDFATrans(move);
 
+        curStates.sort(comparator);
+        curTerminatedStates.sort(comparator);
+
         DFA dfa = new DFA();
         dfa.setStart(curStates.get(0));
         dfa.setAlphabet(nfa.getAlphabet());
         dfa.setStates(curStates);
         dfa.setTerminatedStates(curTerminatedStates);
         dfa.setMove(move);
+
+        // 将原 NFA 对应的模式 pattern 加入现在的 DFA 映射
+        DFA_StatePatternMappingController.add(dfa, NFA_StatePatternMappingController.getMap().get(nfa));
+
         return dfa;
     }
 
@@ -224,25 +226,14 @@ public class DFA_Handler {
      * 判断toTest是否与pre有交集
      * 有交集，现等价状态即为现DFA的终止态
      */
-    private List<String> getEquivalentStatePatterns(final List<FA_State> preTerminals, final List<FA_State> toTest) {
+    private boolean isTerminatedState(final List<FA_State> pre, final List<FA_State> toTest) {
         // 取交集无并集
         // 深度拷贝复制 toTest，保证 retainAll 之后 toTest 不会被修改
         List<FA_State> newList = new FA_StatesList();
         newList.addAll(toTest);
-        newList.retainAll(preTerminals);
+        newList.retainAll(pre);
 
-        if (newList.size() == 0) {
-            // 不含终止态，直接返回 null
-            return null;
-        } else {
-            List<String> result = new LinkedList<>();
-            for (FA_State coveredTerminal : newList) {
-                String pattern = NFA_StatePatternMappingController.getMap().get(coveredTerminal);
-                result.add(pattern);
-            }
-            return result;
-        }
-
+        return newList.size() != 0;
     }
 
 
@@ -413,20 +404,6 @@ public class DFA_Handler {
         // 移除这些状态
         List<FA_State> needDeleteStates = new FA_StatesList(deleteTran.keySet());
         needDeleteStates.sort(comparator);
-
-        // 把终止态的 pattern 合并，无交集并集
-        for (FA_State deleteState : needDeleteStates) {
-            if (dfa.getTerminatedStates().contains(deleteState)) {
-                Map<FA_State, List<String>> map = DFA_StatePatternMappingController.getMap();
-                List<String> coveredPatterns = map.get(deleteState);
-                map.remove(deleteState);
-
-                List<String> pre = map.get(deleteTran.get(deleteState));
-                pre.removeAll(coveredPatterns);
-                pre.addAll(coveredPatterns);
-            }
-        }
-
 
         // 转移链接关系
         // 需移除节点 指向 其他节点

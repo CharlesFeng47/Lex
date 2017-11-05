@@ -59,7 +59,7 @@ public class NFA_Handler {
 
         // 映射 NFA 与其对应的模式 pattern
         NFA result = handling.get(0);
-        NFA_StatePatternMappingController.add(result.getTerminatedStates().get(0), patternType);
+        NFA_StatePatternMappingController.add(result, patternType);
 
         // 最终栈中剩下的唯一NFA即为所求
         return result;

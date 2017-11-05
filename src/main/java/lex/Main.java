@@ -28,10 +28,10 @@ public class Main {
         List<String> lexContent = lexInputReader.readREs();
 
         LexInputHandler lexInputHandler = new LexInputHandler(lexContent);
-        DFA dfa = lexInputHandler.convert();
+        List<DFA> allDFAs = lexInputHandler.convert();
 
         // 生成词法分析器
-        LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(dfa, lexInputHandler.getPatternREMap(), lexInputHandler.getPatternPriorityMap());
+        LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer(allDFAs);
         List<Token> resultTokens = new LinkedList<>();
         for (String lexeme : lexemes) {
             resultTokens.add(lexicalAnalyzer.analyze(lexeme));

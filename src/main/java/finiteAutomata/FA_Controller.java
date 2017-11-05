@@ -5,8 +5,8 @@ import finiteAutomata.entity.DFA;
 import finiteAutomata.entity.NFA;
 import org.apache.log4j.Logger;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Created by cuihua on 2017/10/27.
@@ -17,12 +17,13 @@ public class FA_Controller {
 
     private static final Logger logger = Logger.getLogger(FA_Controller.class);
 
-    public DFA lexicalAnalysis(List<String> res, List<String> patternType) {
+    public List<DFA> lexicalAnalysis(List<String> res, List<String> patternType) {
         RegularExpressionHandler rgHandler = new RegularExpressionHandler();
         NFA_Handler nfaHandler = new NFA_Handler();
         DFA_Handler dfaHandler = new DFA_Handler();
 
-        Stack<NFA> convertedNFA = new Stack<>();
+        // 对每个正则定义依次生成最小 DFA
+        List<DFA> result = new LinkedList<>();
         for (int i = 0; i < res.size(); i++) {
             // 处理当前 RE
             String re = res.get(i);
@@ -35,18 +36,15 @@ public class FA_Controller {
 
             // RE => NFA
             NFA nfa = nfaHandler.getFromRE(re, patternType.get(i));
-            convertedNFA.push(nfa);
             logger.debug("将正则定义 " + re + " 成功转化为 NFA");
+
+            // 转化为最小DFA
+            DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(nfa));
+            logger.debug("正则定义 " + re + " 的状态数量: " + dfa.getStates().size());
+
+            result.add(dfa);
         }
 
-        // 合并所有 NFA 为一个 NFA
-        NFA finalNFA = nfaHandler.combine(convertedNFA);
-        logger.debug("所有 NFA 已被合并为一个");
-
-        // 转化为最小DFA
-        DFA dfa = dfaHandler.optimize(dfaHandler.getFromNFA(finalNFA));
-        logger.debug("all states size: " + dfa.getStates().size());
-
-        return dfa;
+        return result;
     }
 }

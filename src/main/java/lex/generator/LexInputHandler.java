@@ -25,11 +25,6 @@ public class LexInputHandler {
      */
     private Map<String, String> patternREMap;
 
-    /**
-     * 模式 与 优先级 的一一映射（整数0表示优先级最高，越优先匹配）
-     */
-    private Map<String, Integer> patternPriorityMap;
-
     public LexInputHandler(List<String> content) {
         this.content = content;
         initMap();
@@ -40,26 +35,16 @@ public class LexInputHandler {
      */
     private void initMap() {
         patternREMap = new HashMap<>();
-        patternPriorityMap = new HashMap<>();
-        for (int i = 0; i < content.size(); i++) {
-            String[] parts = content.get(i).split(" ");
+        for (String line : content) {
+            String[] parts = line.split(" ");
             patternREMap.put(parts[0], parts[1]);
-            patternPriorityMap.put(parts[0], i);
         }
-    }
-
-    public Map<String, String> getPatternREMap() {
-        return patternREMap;
-    }
-
-    public Map<String, Integer> getPatternPriorityMap() {
-        return patternPriorityMap;
     }
 
     /**
      * .l 文件内容对应的 DFA
      */
-    public DFA convert() {
+    public List<DFA> convert() {
         // 处理正则定义
         List<String> res = new LinkedList<>(patternREMap.values());
         List<String> patternTypes = new LinkedList<>(patternREMap.keySet());

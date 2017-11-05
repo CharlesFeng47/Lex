@@ -1,6 +1,5 @@
 package finiteAutomata.entity;
 
-import exceptions.NotMatchingException;
 import finiteAutomata.FA_Controller;
 import org.junit.After;
 import org.junit.Assert;
@@ -39,10 +38,10 @@ public class DFATest {
         patterns.add("ID");
 
         FA_Controller controller = new FA_Controller();
-        DFA dfa = controller.lexicalAnalysis(res, patterns);
+        DFA dfa = controller.lexicalAnalysis(res, patterns).get(0);
 
-        Assert.assertEquals(patterns, dfa.getEndingPatterns("aa"));
-        Assert.assertEquals(patterns, dfa.getEndingPatterns("aaa"));
+        Assert.assertEquals(true, dfa.isValid("aa"));
+        Assert.assertEquals(true, dfa.isValid("aaa"));
     }
 
     /**
@@ -60,25 +59,22 @@ public class DFATest {
         patterns.add("A");
 
         FA_Controller controller = new FA_Controller();
-        DFA dfa = controller.lexicalAnalysis(res, patterns);
+        List<DFA> dfas = controller.lexicalAnalysis(res, patterns);
+        DFA dfa1 = dfas.get(0);
+        DFA dfa2 = dfas.get(1);
 
-        List<String> result1 = new LinkedList<>();
-        result1.add("ID");
-
-        List<String> result2 = new LinkedList<>();
-        result2.add("A");
-
-        Assert.assertEquals(result1, dfa.getEndingPatterns("aa"));
-        Assert.assertEquals(result1, dfa.getEndingPatterns("aaa"));
-        Assert.assertEquals(result2, dfa.getEndingPatterns("b"));
-        Assert.assertEquals(result2, dfa.getEndingPatterns("bb"));
-        Assert.assertEquals(result2, dfa.getEndingPatterns("bbb"));
+        Assert.assertEquals(true, dfa1.isValid("aa"));
+        Assert.assertEquals(true, dfa1.isValid("aaa"));
+        Assert.assertEquals(false, dfa1.isValid("b"));
+        Assert.assertEquals(true, dfa2.isValid("b"));
+        Assert.assertEquals(true, dfa2.isValid("bb"));
+        Assert.assertEquals(true, dfa2.isValid("bbb"));
     }
 
     /**
      * Method: isValid(String s)
      */
-    @Test(expected = NotMatchingException.class)
+    @Test
     public void testIsValid3() throws Exception {
         List<String> res = new LinkedList<>();
         res.add("aa+");
@@ -88,15 +84,15 @@ public class DFATest {
         patterns.add("ID");
 
         FA_Controller controller = new FA_Controller();
-        DFA dfa = controller.lexicalAnalysis(res, patterns);
+        DFA dfa = controller.lexicalAnalysis(res, patterns).get(0);
 
-        dfa.getEndingPatterns("a");
+        Assert.assertEquals(false, dfa.isValid("a"));
     }
 
     /**
      * Method: isValid(String s)
      */
-    @Test(expected = NotMatchingException.class)
+    @Test
     public void testIsValid4() throws Exception {
         List<String> res = new LinkedList<>();
         res.add("aa+");
@@ -106,9 +102,9 @@ public class DFATest {
         patterns.add("ID");
 
         FA_Controller controller = new FA_Controller();
-        DFA dfa = controller.lexicalAnalysis(res, patterns);
+        DFA dfa = controller.lexicalAnalysis(res, patterns).get(0);
 
-        dfa.getEndingPatterns("b");
+        Assert.assertEquals(false, dfa.isValid("b"));
     }
 
 }

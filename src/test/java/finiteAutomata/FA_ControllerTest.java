@@ -34,14 +34,15 @@ public class FA_ControllerTest {
         FA_Controller controller = new FA_Controller();
 
         List<String> res = new LinkedList<>();
-        res.add("a+");
-        res.add("a*|b*");
+//        res.add("a+");
+//        res.add("a*|b*");
 //        res.add("(a|b)*");
 //        res.add("(a*|b*)*");
 //        res.add("((ε|a)b*)*");
-        res.add("(a|b)*abb(a|b)*");
-        res.add("aba?a+abb+cc");
-        res.add("\\{a*b*c{1,3}\\}");
+//        res.add("(a|b)*abb(a|b)*");
+//        res.add("aba?a+abb+cc");
+//        res.add("\\{a*b*c{1,3}\\}");
+        res.add("[a-z0-9]*");
 
 
         List<String> patterns = new LinkedList<>();

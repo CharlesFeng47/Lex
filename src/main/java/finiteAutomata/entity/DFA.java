@@ -1,9 +1,5 @@
 package finiteAutomata.entity;
 
-import exceptions.NotMatchingException;
-import utilties.DFA_StatePatternMappingController;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,32 +24,6 @@ public class DFA extends FA {
         this.move = move;
     }
 
-    /**
-     * @param lexeme 要检查的词素
-     * @return 这个词素在最终最小 DFA 中对应的所有可能的模式，
-     * @throws NotMatchingException 不符合当前正则定义的词素
-     */
-    public List<String> getEndingPatterns(String lexeme) throws NotMatchingException {
-        FA_State curState = getStart();
-
-        for (char c : lexeme.toCharArray()) {
-            boolean canFind = false;
-            for (FA_Edge curEdge : curState.getFollows()) {
-                if (curEdge.getLabel() == c) {
-                    curState = curEdge.getPointTo();
-                    canFind = true;
-                    break;
-                }
-            }
-
-            if (!canFind) throw new NotMatchingException(lexeme);
-        }
-
-        // 字符串结束后在终止态即为合法的结束
-        boolean isValid = getTerminatedStates().contains(curState);
-        if (isValid) return DFA_StatePatternMappingController.getMap().get(curState);
-        else throw new NotMatchingException(lexeme);
-    }
 
     @Override
     public boolean isValid(String lexeme) {
