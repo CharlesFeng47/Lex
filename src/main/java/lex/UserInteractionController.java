@@ -56,12 +56,12 @@ public class UserInteractionController {
         StringBuilder sb = new StringBuilder();
         sb.append("-------------------\n");
         for (Token token : tokens) {
-            sb.append("<").append(token.getPatternType());
+            sb.append("< ").append(token.getPatternType());
             if (token.getAttribute() != null) {
                 sb.append(", ");
                 sb.append(token.getAttribute());
             }
-            sb.append(">").append("\n");
+            sb.append(" >").append("\n");
         }
         sb.append("-------------------");
         return sb.toString();

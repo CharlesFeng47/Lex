@@ -390,6 +390,7 @@ public class RegularExpressionHandler {
         String toCheckComma = re;
         int commaIndex;
         while ((commaIndex = toCheckComma.indexOf(",")) != -1) {
+            if (commaIndex == 0) throw new UnexpectedRegularExprRuleException(re);
             if (toCheckComma.charAt(commaIndex - 1) != '\\') throw new UnexpectedRegularExprRuleException(re);
             else toCheckComma = toCheckComma.substring(commaIndex + 1);
         }
@@ -398,6 +399,7 @@ public class RegularExpressionHandler {
         String toCheckSeparator = re;
         int separatorIndex;
         while ((separatorIndex = toCheckSeparator.indexOf("-")) != -1) {
+            if (separatorIndex == 0) throw new UnexpectedRegularExprRuleException(re);
             if (toCheckSeparator.charAt(separatorIndex - 1) != '\\') throw new UnexpectedRegularExprRuleException(re);
             else toCheckSeparator = toCheckSeparator.substring(separatorIndex + 1);
         }
