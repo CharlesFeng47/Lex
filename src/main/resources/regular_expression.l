@@ -1,4 +1,7 @@
+digit [0-9]
 number [1-9][0-9]*
 letter [a-zA-Z]
-id [a-zA-Z][a-zA-Z0-9]*
-testTransferred \{a*b*c{1,3}\}
+word [a-zA-Z]*
+id [a-zA-Z][_a-zA-Z0-9]*
+testTransferred1 \{a*b*c{1,3}\}
+testTransferred2 \[0\-9\]a*

@@ -3,10 +3,7 @@ package lex.generator;
 import finiteAutomata.FA_Controller;
 import finiteAutomata.entity.DFA;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/1.
@@ -32,9 +29,10 @@ public class LexInputHandler {
 
     /**
      * 根据 .l 文件初始化映射表
+     * LinkedHashMao 保证顺序与读入顺序相同
      */
     private void initMap() {
-        patternREMap = new HashMap<>();
+        patternREMap = new LinkedHashMap<>();
         for (String line : content) {
             String[] parts = line.split(" ");
             patternREMap.put(parts[0], parts[1]);
